@@ -405,11 +405,29 @@
       color: rgba(28, 37, 65, 0.5);
       min-height: 1.2em;
       transition: color 0.2s ease;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
     }
 
-    .field-hint.is-warning {
+    .field-hint .hint-text {
+      flex: 1;
+    }
+
+    .field-hint .word-count {
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+      color: rgba(28, 37, 65, 0.4);
+    }
+
+    .field-hint.is-warning .hint-text {
       color: var(--orange-deep);
       font-weight: 500;
+    }
+
+    .field-hint .word-count.is-over {
+      color: var(--orange-deep);
+      font-weight: 600;
     }
 
     input[name="_honey"] {
@@ -800,7 +818,10 @@
                 <textarea id="message" name="message" required maxlength="2000"
                   placeholder="What can Bryan help with? (English, Tagalog, or Bisaya all work.)"></textarea>
               </div>
-              <div class="field-hint" id="messageHint" aria-live="polite"></div>
+              <div class="field-hint" id="messageHint" aria-live="polite">
+                <span class="hint-text" id="messageHintText"></span>
+                <span class="word-count" id="messageWordCount"></span>
+              </div>
             </div>
 
             <!-- Honeypot field - hidden from real users -->
@@ -808,7 +829,7 @@
 
             <div class="form-actions">
               <button type="submit" id="contactSubmit" class="btn btn-primary">Send Message</button>
-              <span class="form-note">Read personally by Bryan — no support team, no auto-replies. Limited to 3 messages per day to keep things spam-free.</span>
+              <span class="form-note">Read personally by Bryan — no support team, no auto-replies. Message must be 3–300 real words. Limited to 3 messages per day to keep things spam-free.</span>
             </div>
 
             <p id="contactStatus" role="status" aria-live="polite"></p>
@@ -962,6 +983,8 @@
       const submitBtn = document.getElementById('contactSubmit');
       const messageEl = document.getElementById('message');
       const messageHintEl = document.getElementById('messageHint');
+      const messageHintTextEl = document.getElementById('messageHintText');
+      const messageWordCountEl = document.getElementById('messageWordCount');
 
       function setStatus(message, isError) {
         statusEl.textContent = message;
@@ -972,57 +995,174 @@
       }
 
       // ----------------------------------------------------------
-      // Gibberish / keyboard-mashing detector — language-agnostic.
-      // English, Tagalog, and Bisaya are all Latin-alphabet, vowel-rich
-      // languages: real words in any of them rarely go 5+ consonants in
-      // a row or contain zero vowels at all (e.g. "lakbay", "balay",
-      // "island", "sakay"). Random typing like "hrgbalhrf alkefawe"
-      // breaks that pattern regardless of which of the three languages
-      // someone meant to type. This mirrors the same check the server
-      // runs, so people get feedback instantly instead of on submit.
+      // Word / message limits — mirrors the server-side limits in
+      // api/contact.js. Keep these two files in sync if you change one.
       // ----------------------------------------------------------
-      function looksLikeGibberish(text) {
-        const words = text
-          .trim()
-          .split(/\s+/)
-          .map((w) => w.replace(/[^a-zA-Z]/g, ''))
+      const MIN_WORDS = 3;
+      const MAX_WORDS = 300;
+      const MIN_VALID_WORD_RATIO = 0.6; // at least 60% of words must look "real"
+
+      // ----------------------------------------------------------
+      // Blocklist — profanity / violent / spam-trigger terms across
+      // English, Tagalog, and Bisaya. NOT exhaustive — this is a
+      // starter list. For production-grade coverage, swap this for a
+      // maintained package (e.g. "leo-profanity", "bad-words") on both
+      // the client and server instead of hand-maintaining a word list.
+      // Matching is done against the whole message (lowercased) so
+      // multi-word phrases work too, and simple leetspeak substitutions
+      // (0 for o, 1 for i, 3 for e, etc.) are normalized before matching.
+      // ----------------------------------------------------------
+      const BLOCKLIST = [
+        // english — profanity / slurs / violent threats (starter set)
+        'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'cunt', 'whore',
+        'nigger', 'faggot', 'retard',
+        'kill you', 'kill him', 'kill her', 'i will kill', 'gonna kill',
+        'shoot up', 'shoot you', 'bomb the', 'blow up', 'i have a gun',
+        'rape you', 'terrorist attack',
+        // tagalog — profanity (starter set)
+        'putangina', 'putang ina', 'gago', 'gaga', 'tangina', 'tarantado',
+        'ulol', 'bobo', 'leche', 'punyeta', 'walang hiya',
+        // bisaya / cebuano — profanity (starter set)
+        'yawa', 'buang', 'bilat', 'piste', 'atay', 'animal ka',
+      ];
+
+      function normalizeForBlocklist(text) {
+        return text
+          .toLowerCase()
+          .replace(/[0]/g, 'o')
+          .replace(/[1!]/g, 'i')
+          .replace(/[3]/g, 'e')
+          .replace(/[4@]/g, 'a')
+          .replace(/[5$]/g, 's')
+          .replace(/[^a-z0-9\s]/g, ' ') // strip punctuation so "f.u.c.k" -> "f u c k"... handled below
+          .replace(/\s+/g, ' ')
+          .trim();
+      }
+
+      function containsBlockedTerm(text) {
+        const normalized = normalizeForBlocklist(text);
+        // also collapse spaced-out letters like "f u c k" -> "fuck" for a second pass
+        const collapsed = normalized.replace(/\b(\w)\s+(?=\w\b)/g, '$1');
+        for (const term of BLOCKLIST) {
+          if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      // ----------------------------------------------------------
+      // Per-word "looks like a real word" check — language-agnostic.
+      // English, Tagalog, and Bisaya are all Latin-alphabet, vowel-rich
+      // languages: real words rarely go 5+ consonants in a row, contain
+      // zero vowels, or repeat the same character 4+ times in a row
+      // (e.g. "aaaa", "kkkk"). Each word is judged on its own — a
+      // message needs a real majority of individually-valid words to
+      // pass, not just a good average.
+      // ----------------------------------------------------------
+      function analyzeMessage(rawText) {
+        const text = rawText.trim();
+
+        if (containsBlockedTerm(text)) {
+          return { ok: false, reason: 'blocked' };
+        }
+
+        const rawWords = text.split(/\s+/).filter(Boolean);
+        const words = rawWords
+          .map((w) => w.replace(/[^a-zA-Z'-]/g, ''))
           .filter((w) => w.length > 0);
 
-        if (words.length === 0) return false; // empty isn't "gibberish", it's just empty
+        if (words.length < MIN_WORDS) {
+          return { ok: false, reason: 'too_short', wordCount: words.length };
+        }
+        if (words.length > MAX_WORDS) {
+          return { ok: false, reason: 'too_long', wordCount: words.length };
+        }
 
-        let suspicious = 0;
-        let checkable = 0;
+        let validCount = 0;
+        let judged = 0;
 
         for (const word of words) {
-          if (word.length < 3) continue; // too short to judge (e.g. "hi", "ok", "sa")
-          checkable++;
+          if (word.length < 2) continue; // too short to judge (e.g. "a", "i", "sa")
+          judged++;
 
           const hasVowel = /[aeiouAEIOU]/.test(word);
-          const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word); // 5+ consonants in a row
+          const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word);
+          const repeatedChar = /(.)\1{3,}/.test(word); // "aaaa", "kkkk"
 
-          if (!hasVowel || longConsonantRun) {
-            suspicious++;
+          if (hasVowel && !longConsonantRun && !repeatedChar) {
+            validCount++;
           }
         }
 
-        if (checkable === 0) return false; // not enough to judge — let it through
-        return suspicious / checkable > 0.4; // more than 40% of words look like mashing
+        if (judged === 0) {
+          return { ok: false, reason: 'too_short', wordCount: words.length };
+        }
+
+        const ratio = validCount / judged;
+        if (ratio < MIN_VALID_WORD_RATIO) {
+          return { ok: false, reason: 'gibberish', wordCount: words.length, ratio };
+        }
+
+        return { ok: true, wordCount: words.length };
       }
 
       // Live feedback while typing — debounced so it doesn't fire on every keystroke
       let hintTimer = null;
+      let lastAnalysis = { ok: true }; // assume ok until the user has typed anything
+
+      function updateHint() {
+        const value = messageEl.value.trim();
+        lastAnalysis = analyzeMessage(value);
+
+        // word counter, always shown once there's content
+        const rawWordCount = value ? value.split(/\s+/).filter(Boolean).length : 0;
+        if (rawWordCount > 0) {
+          messageWordCountEl.textContent = `${rawWordCount} / ${MAX_WORDS} words`;
+          messageWordCountEl.classList.toggle('is-over', rawWordCount > MAX_WORDS);
+        } else {
+          messageWordCountEl.textContent = '';
+        }
+
+        if (!value) {
+          messageHintTextEl.textContent = '';
+          messageHintEl.classList.remove('is-warning');
+          submitBtn.disabled = false; // don't block an empty field before they've typed
+          return;
+        }
+
+        if (lastAnalysis.ok) {
+          messageHintTextEl.textContent = '';
+          messageHintEl.classList.remove('is-warning');
+          submitBtn.disabled = false;
+          return;
+        }
+
+        let msg = '';
+        switch (lastAnalysis.reason) {
+          case 'blocked':
+            msg = "That message can't be sent — please remove any offensive or threatening language.";
+            break;
+          case 'too_short':
+            msg = `Please write at least ${MIN_WORDS} real words.`;
+            break;
+          case 'too_long':
+            msg = `Please keep your message under ${MAX_WORDS} words.`;
+            break;
+          case 'gibberish':
+          default:
+            msg = "This doesn't look like readable text yet — try writing in full words (English, Tagalog, or Bisaya all work).";
+            break;
+        }
+        messageHintTextEl.textContent = msg;
+        messageHintEl.classList.add('is-warning');
+        submitBtn.disabled = true;
+      }
+
       messageEl.addEventListener('input', () => {
         clearTimeout(hintTimer);
-        hintTimer = setTimeout(() => {
-          const value = messageEl.value.trim();
-          if (value.length >= 8 && looksLikeGibberish(value)) {
-            messageHintEl.textContent = "This doesn't look like readable text yet — try writing in full words (English, Tagalog, or Bisaya all work).";
-            messageHintEl.classList.add('is-warning');
-          } else {
-            messageHintEl.textContent = '';
-            messageHintEl.classList.remove('is-warning');
-          }
-        }, 400);
+        // instant gate on submit button, debounced only for the visible hint text
+        hintTimer = setTimeout(updateHint, 250);
       });
 
       // Client-side validation
@@ -1039,8 +1179,20 @@
         if (message.length < 5 || message.length > 2000) {
           return 'Message must be 5-2000 characters.';
         }
-        if (looksLikeGibberish(message)) {
-          return "Your message doesn't look like readable text — please rewrite it so Bryan can understand what you need.";
+
+        const analysis = analyzeMessage(message);
+        if (!analysis.ok) {
+          switch (analysis.reason) {
+            case 'blocked':
+              return "That message can't be sent — please remove any offensive or threatening language.";
+            case 'too_short':
+              return `Please write at least ${MIN_WORDS} real words.`;
+            case 'too_long':
+              return `Please keep your message under ${MAX_WORDS} words.`;
+            case 'gibberish':
+            default:
+              return "Your message doesn't look like readable text — please rewrite it so Bryan can understand what you need.";
+          }
         }
         return null;
       }
@@ -1088,8 +1240,9 @@
           if (response.ok && data.success) {
             setStatus('Thanks — your message has been sent. Bryan will get back to you soon.', false);
             form.reset();
-            messageHintEl.textContent = '';
+            messageHintTextEl.textContent = '';
             messageHintEl.classList.remove('is-warning');
+            messageWordCountEl.textContent = '';
           } else {
             setStatus(data.error || 'Something went wrong. Please try emailing directly.', true);
           }
