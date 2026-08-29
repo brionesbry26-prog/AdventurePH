@@ -398,6 +398,20 @@
       pointer-events: none;
     }
 
+    /* live message-quality hint, shown under the textarea while typing */
+    .field-hint {
+      margin-top: 8px;
+      font-size: 0.78rem;
+      color: rgba(28, 37, 65, 0.5);
+      min-height: 1.2em;
+      transition: color 0.2s ease;
+    }
+
+    .field-hint.is-warning {
+      color: var(--orange-deep);
+      font-weight: 500;
+    }
+
     input[name="_honey"] {
       position: absolute;
       left: -9999px;
@@ -784,8 +798,9 @@
                     <path d="M4 4h16v12H8l-4 4z" />
                   </svg></span>
                 <textarea id="message" name="message" required maxlength="2000"
-                  placeholder="What can Bryan help with?"></textarea>
+                  placeholder="What can Bryan help with? (English, Tagalog, or Bisaya all work.)"></textarea>
               </div>
+              <div class="field-hint" id="messageHint" aria-live="polite"></div>
             </div>
 
             <!-- Honeypot field - hidden from real users -->
@@ -793,7 +808,7 @@
 
             <div class="form-actions">
               <button type="submit" id="contactSubmit" class="btn btn-primary">Send Message</button>
-              <span class="form-note">Read personally by Bryan — no support team, no auto-replies.</span>
+              <span class="form-note">Read personally by Bryan — no support team, no auto-replies. Limited to 3 messages per day to keep things spam-free.</span>
             </div>
 
             <p id="contactStatus" role="status" aria-live="polite"></p>
@@ -945,6 +960,8 @@
       const form = document.getElementById('contactForm');
       const statusEl = document.getElementById('contactStatus');
       const submitBtn = document.getElementById('contactSubmit');
+      const messageEl = document.getElementById('message');
+      const messageHintEl = document.getElementById('messageHint');
 
       function setStatus(message, isError) {
         statusEl.textContent = message;
@@ -953,6 +970,60 @@
           statusEl.classList.add(isError ? 'is-error' : 'is-success');
         }
       }
+
+      // ----------------------------------------------------------
+      // Gibberish / keyboard-mashing detector — language-agnostic.
+      // English, Tagalog, and Bisaya are all Latin-alphabet, vowel-rich
+      // languages: real words in any of them rarely go 5+ consonants in
+      // a row or contain zero vowels at all (e.g. "lakbay", "balay",
+      // "island", "sakay"). Random typing like "hrgbalhrf alkefawe"
+      // breaks that pattern regardless of which of the three languages
+      // someone meant to type. This mirrors the same check the server
+      // runs, so people get feedback instantly instead of on submit.
+      // ----------------------------------------------------------
+      function looksLikeGibberish(text) {
+        const words = text
+          .trim()
+          .split(/\s+/)
+          .map((w) => w.replace(/[^a-zA-Z]/g, ''))
+          .filter((w) => w.length > 0);
+
+        if (words.length === 0) return false; // empty isn't "gibberish", it's just empty
+
+        let suspicious = 0;
+        let checkable = 0;
+
+        for (const word of words) {
+          if (word.length < 3) continue; // too short to judge (e.g. "hi", "ok", "sa")
+          checkable++;
+
+          const hasVowel = /[aeiouAEIOU]/.test(word);
+          const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word); // 5+ consonants in a row
+
+          if (!hasVowel || longConsonantRun) {
+            suspicious++;
+          }
+        }
+
+        if (checkable === 0) return false; // not enough to judge — let it through
+        return suspicious / checkable > 0.4; // more than 40% of words look like mashing
+      }
+
+      // Live feedback while typing — debounced so it doesn't fire on every keystroke
+      let hintTimer = null;
+      messageEl.addEventListener('input', () => {
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => {
+          const value = messageEl.value.trim();
+          if (value.length >= 8 && looksLikeGibberish(value)) {
+            messageHintEl.textContent = "This doesn't look like readable text yet — try writing in full words (English, Tagalog, or Bisaya all work).";
+            messageHintEl.classList.add('is-warning');
+          } else {
+            messageHintEl.textContent = '';
+            messageHintEl.classList.remove('is-warning');
+          }
+        }, 400);
+      });
 
       // Client-side validation
       function validateClientSide(name, email, message) {
@@ -967,6 +1038,9 @@
         }
         if (message.length < 5 || message.length > 2000) {
           return 'Message must be 5-2000 characters.';
+        }
+        if (looksLikeGibberish(message)) {
+          return "Your message doesn't look like readable text — please rewrite it so Bryan can understand what you need.";
         }
         return null;
       }
@@ -1014,6 +1088,8 @@
           if (response.ok && data.success) {
             setStatus('Thanks — your message has been sent. Bryan will get back to you soon.', false);
             form.reset();
+            messageHintEl.textContent = '';
+            messageHintEl.classList.remove('is-warning');
           } else {
             setStatus(data.error || 'Something went wrong. Please try emailing directly.', true);
           }
