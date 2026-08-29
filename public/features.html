@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Features — Adventure</title>
+<meta name="description" content="Trip planning, ferry routes, offline maps, an AI trip assistant, shared trips, and a travel journal that builds itself.">
+
+<style>
+/* ==========================================================================
+   Adventure — Features
+   Shares the Cresta design tokens (deep navy, ember, champagne gold, the
+   route-line motif) introduced on the homepage, applied here to the real
+   feature content instead of placeholder copy.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+:root{
+  --navy-deep:   #080E1E;
+  --navy:        #0D1B2A;
+  --navy-card:   #101F33;
+  --ember:       #FF5A1F;
+  --ember-bright:#FF7A00;
+  --gold:        #E6C687;
+  --gold-dim:    rgba(230,198,135,0.35);
+  --white:       #FFFFFF;
+  --slate:       #94A3B8;
+  --slate-dim:   #5C6B82;
+
+  --serif: 'Cormorant Garamond', 'Playfair Display', serif;
+  --sans:  'Plus Jakarta Sans', 'Montserrat', sans-serif;
+
+  --wrap: 1240px;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+}
+
+body{
+  margin:0;
+  background:var(--navy-deep);
+  color:var(--white);
+  font-family:var(--sans);
+  font-weight:400;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+img{max-width:100%; display:block;}
+a{color:inherit; text-decoration:none;}
+::selection{background:var(--ember); color:var(--white);}
+a:focus-visible, button:focus-visible{ outline:1.5px solid var(--gold); outline-offset:3px; }
+
+.wrap{
+  max-width:var(--wrap);
+  margin:0 auto;
+  padding:0 clamp(1.4rem, 4vw, 3rem);
+  position:relative;
+  z-index:2;
+}
+
+h1,h2,h3,h4{
+  font-family:var(--serif);
+  font-weight:500;
+  line-height:1.14;
+  margin:0;
+  letter-spacing:0.005em;
+}
+p{ margin:0 0 1em; color:var(--slate); }
+
+.eyebrow{
+  font-family:var(--sans);
+  font-size:0.72rem;
+  font-weight:600;
+  letter-spacing:0.28em;
+  text-transform:uppercase;
+  color:var(--gold);
+  display:inline-flex;
+  align-items:center;
+  gap:0.75em;
+  margin-bottom:1.2em;
+}
+.eyebrow::before{
+  content:"";
+  width:34px; height:1px;
+  background:linear-gradient(90deg, transparent, var(--gold));
+}
+
+/* ---- Route-line signature motif ---- */
+.route-divider{
+  position:relative;
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.route-divider svg{ width:220px; height:100%; overflow:visible; }
+.route-divider path{ fill:none; stroke:var(--gold-dim); stroke-width:1; stroke-dasharray:3 7; }
+.route-divider circle{ fill:var(--gold); }
+
+/* ---- Buttons ---- */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap:0.6em;
+  font-family:var(--sans);
+  font-weight:600;
+  font-size:0.86rem;
+  letter-spacing:0.03em;
+  padding:1em 2em;
+  border-radius:2px;
+  border:1px solid transparent;
+  cursor:pointer;
+  transition:transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  white-space:nowrap;
+}
+.btn-ember{
+  background:linear-gradient(135deg, var(--ember-bright), var(--ember));
+  color:var(--white);
+  box-shadow:0 14px 34px -14px rgba(255,90,31,0.55);
+}
+.btn-ember:hover{ transform:translateY(-2px); box-shadow:0 18px 40px -12px rgba(255,90,31,0.7); }
+.btn-outline{ background:transparent; border-color:rgba(255,255,255,0.28); color:var(--white); }
+.btn-outline:hover{ border-color:var(--gold); color:var(--gold); transform:translateY(-2px); }
+
+/* ---- Nav ---- */
+.site-nav{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  padding:1.6rem 0;
+  transition:background 0.4s ease, padding 0.4s ease, border-color 0.4s ease;
+  border-bottom:1px solid transparent;
+}
+.site-nav.scrolled{
+  background:rgba(8,14,30,0.86);
+  backdrop-filter:blur(14px);
+  padding:1.05rem 0;
+  border-bottom-color:rgba(230,198,135,0.14);
+}
+.site-nav .wrap{ display:flex; align-items:center; justify-content:space-between; }
+.brand{
+  font-family:var(--serif);
+  font-size:1.5rem;
+  font-weight:600;
+  letter-spacing:0.02em;
+  display:flex;
+  align-items:center;
+  gap:0.6em;
+}
+.brand-mark{ width:30px; height:30px; border-radius:8px; object-fit:cover; flex:none; }
+.nav-links{
+  display:flex;
+  align-items:center;
+  gap:2.4rem;
+  list-style:none;
+  margin:0; padding:0;
+  font-size:0.82rem;
+  font-weight:500;
+  letter-spacing:0.02em;
+}
+.nav-links a{ color:rgba(255,255,255,0.75); transition:color 0.2s ease; position:relative; }
+.nav-links a:hover{ color:var(--gold); }
+.nav-links a.active{ color:var(--gold); }
+.nav-links a.active::after{
+  content:"";
+  position:absolute; left:0; right:0; bottom:-8px;
+  height:1px;
+  background:var(--gold);
+}
+.nav-cta{ display:flex; align-items:center; gap:1.4rem; }
+.nav-toggle{
+  display:none;
+  width:38px; height:38px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,0.24);
+  background:transparent;
+  color:var(--white);
+  align-items:center; justify-content:center;
+  cursor:pointer;
+}
+
+@media (max-width:900px){
+  .nav-links{
+    position:fixed;
+    inset:0 0 0 auto;
+    top:0;
+    height:100vh;
+    width:min(320px, 82vw);
+    background:var(--navy);
+    flex-direction:column;
+    justify-content:center;
+    align-items:flex-start;
+    gap:2rem;
+    padding:0 3rem;
+    transform:translateX(100%);
+    transition:transform 0.4s cubic-bezier(.16,.8,.24,1);
+    border-left:1px solid rgba(230,198,135,0.14);
+    font-size:1rem;
+  }
+  .nav-links.is-open{ transform:translateX(0); }
+  .nav-toggle{ display:flex; }
+  .nav-cta .btn-ember{ display:none; }
+}
+
+/* ---- Section rhythm ---- */
+section{ position:relative; }
+.section-pad{ padding:clamp(4rem, 9vw, 7rem) 0; }
+.section-alt{ background:var(--navy); }
+.center{ text-align:center; margin-left:auto; margin-right:auto; }
+
+/* ---- Page hero ---- */
+.page-hero{
+  padding:clamp(9rem, 16vw, 12rem) 0 clamp(3rem, 6vw, 4.5rem);
+  border-bottom:1px solid rgba(230,198,135,0.12);
+}
+.page-hero h1{
+  font-size:clamp(2.4rem, 5.6vw, 4rem);
+  max-width:20ch;
+  color:var(--white);
+}
+.page-hero .lede{
+  font-family:var(--sans);
+  font-size:1.04rem;
+  color:var(--slate);
+  max-width:56ch;
+  margin-top:1.2rem;
+  font-weight:300;
+}
+
+/* ---- Feature rows ---- */
+.feature-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:clamp(2.4rem, 6vw, 5rem);
+  align-items:center;
+}
+.feature-row .copy .eyebrow{ margin-bottom:1rem; }
+.feature-row h2{
+  font-size:clamp(1.9rem, 3.4vw, 2.6rem);
+  color:var(--white);
+}
+.feature-row .desc{
+  font-family:var(--sans);
+  font-size:1rem;
+  color:var(--slate);
+  max-width:52ch;
+  margin-top:1.1rem;
+  font-weight:300;
+}
+.feature-row[data-reverse="true"] .copy{ order:2; }
+.feature-row[data-reverse="true"] .shot{ order:1; }
+
+@media (max-width:860px){
+  .feature-row{ grid-template-columns:1fr; }
+  .feature-row[data-reverse="true"] .copy,
+  .feature-row[data-reverse="true"] .shot{ order:initial; }
+}
+
+.pill-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:0.6em;
+  list-style:none;
+  padding:0;
+  margin:1.6rem 0 0;
+}
+.pill-list li{
+  font-family:var(--sans);
+  font-size:0.74rem;
+  font-weight:500;
+  letter-spacing:0.02em;
+  padding:0.55em 1.05em;
+  border-radius:999px;
+  border:1px solid var(--gold-dim);
+  color:var(--gold);
+  background:rgba(230,198,135,0.06);
+}
+
+.shot{
+  display:flex;
+  justify-content:center;
+}
+.shot-frame{
+  position:relative;
+  width:100%;
+  max-width:320px;
+  aspect-ratio:9/17.5;
+  border-radius:28px;
+  border:1px solid rgba(230,198,135,0.18);
+  background:linear-gradient(160deg, var(--navy-card), var(--navy-deep));
+  box-shadow:0 40px 70px -30px rgba(0,0,0,0.65);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.shot-frame img{ width:100%; height:100%; object-fit:cover; }
+.shot-frame .shot-fallback{
+  font-family:var(--sans);
+  font-size:0.68rem;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--slate-dim);
+  text-align:center;
+  padding:2rem;
+}
+
+hr.hairline{
+  border:none;
+  border-top:1px solid rgba(230,198,135,0.1);
+  margin:0;
+}
+
+/* ---- Bottom CTA ---- */
+.cta-band{
+  background:radial-gradient(ellipse at 50% 0%, rgba(255,90,31,0.14), transparent 60%), var(--navy-deep);
+  border-top:1px solid rgba(230,198,135,0.12);
+  padding:clamp(4.5rem, 9vw, 7rem) 0;
+  text-align:center;
+}
+.cta-band h2{
+  font-size:clamp(2rem, 4.4vw, 3rem);
+  max-width:18ch;
+  margin:0 auto;
+  color:var(--white);
+}
+.cta-band .actions{
+  display:flex;
+  justify-content:center;
+  gap:1rem;
+  flex-wrap:wrap;
+  margin-top:2rem;
+}
+
+/* ---- Footer ---- */
+.site-footer{
+  border-top:1px solid rgba(230,198,135,0.12);
+  padding:clamp(3rem, 6vw, 4.5rem) 0 2.2rem;
+  background:var(--navy-deep);
+}
+.footer-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  flex-wrap:wrap;
+  gap:3rem;
+  padding-bottom:clamp(2.4rem, 5vw, 3.4rem);
+}
+.footer-brand .brand{ margin-bottom:1rem; }
+.footer-brand p{ max-width:30ch; font-size:0.9rem; color:var(--slate); }
+.footer-links{ display:flex; gap:clamp(2.4rem, 6vw, 5rem); flex-wrap:wrap; }
+.footer-col h4{
+  font-family:var(--sans);
+  font-size:0.66rem;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:1.1rem;
+  font-weight:600;
+}
+.footer-col ul{ list-style:none; margin:0; padding:0; display:grid; gap:0.75em; }
+.footer-col a{ font-size:0.9rem; color:var(--slate); transition:color 0.2s ease; }
+.footer-col a:hover{ color:var(--white); }
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding-top:1.8rem;
+  display:flex;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:1rem;
+  font-size:0.78rem;
+  color:var(--slate-dim);
+}
+
+.reveal{
+  opacity:0;
+  transform:translateY(22px);
+  transition:opacity 0.8s cubic-bezier(.16,.8,.24,1), transform 0.8s cubic-bezier(.16,.8,.24,1);
+}
+.reveal.is-visible{ opacity:1; transform:translateY(0); }
+@media (prefers-reduced-motion: reduce){ .reveal{ opacity:1 !important; transform:none !important; } }
+</style>
+</head>
+<body>
+
+<nav class="site-nav" id="siteNav">
+  <div class="wrap">
+    <a href="index.html" class="brand"><img src="css/logo.png" alt="Adventure logo" class="brand-mark"> Adventure</a>
+    <ul class="nav-links" id="siteNavLinks">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="features.html" class="active">Features</a></li>
+      <li><a href="romblon.html">Romblon</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="press.html">Press</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="contact.html" class="btn btn-ember">Get Early Access</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="siteNavLinks">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<header class="page-hero">
+  <div class="wrap">
+    <p class="eyebrow">Features</p>
+    <h1>Everything between "I want to go" and "I'm there."</h1>
+    <p class="lede">Adventure handles the parts of island travel that generic trip planners weren't built for — ferries, terminals, and getting there in the right order.</p>
+  </div>
+</header>
+
+<!-- ===== Feature 1 — Trip planning ===== -->
+<section class="section-pad">
+  <div class="wrap feature-row reveal">
+    <div class="copy">
+      <p class="eyebrow">Trip planning</p>
+      <h2>Routes built around real ferry connections.</h2>
+      <p class="desc">Tell Adventure where you're starting and where you want to end up — one municipality, or a full multi-island chain like Tablas &rarr; Romblon &rarr; Sibuyan. Your itinerary is generated day-by-day, with places already grouped by what's actually reachable between ferry crossings.</p>
+      <ul class="pill-list">
+        <li>Multi-island routing</li>
+        <li>Day-by-day itinerary</li>
+        <li>Drag to reorder</li>
+        <li>Add or remove days anytime</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Deep Purple.png" alt="Adventure app — trip planning screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Trip planning screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<!-- ===== Feature 2 — Ferries & terminals ===== -->
+<section class="section-pad section-alt">
+  <div class="wrap feature-row reveal" data-reverse="true">
+    <div class="copy">
+      <p class="eyebrow">Ferries &amp; terminals</p>
+      <h2>Know the crossing before you're at the dock.</h2>
+      <p class="desc">Every terminal in your route — with the ferries that connect it — is built into your itinerary as a first-class stop, not an afterthought. See connection points, book a ferry within your plan, and get a reminder before departure day.</p>
+      <ul class="pill-list">
+        <li>Terminal-to-terminal routing</li>
+        <li>In-app ferry booking reminders</li>
+        <li>Multi-leg route chains</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Starlight.png" alt="Adventure app — ferry terminals screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Ferry terminals screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<!-- ===== Feature 3 — Isla ===== -->
+<section class="section-pad">
+  <div class="wrap feature-row reveal">
+    <div class="copy">
+      <p class="eyebrow">Isla, your trip assistant</p>
+      <h2>An assistant that already knows your itinerary.</h2>
+      <p class="desc">Isla isn't a generic chatbot bolted onto the app — she's scoped to the trip you're actually on. Ask what's near your Day 3 stop, whether a fiesta lines up with your dates, or what to do with a gap in the schedule.</p>
+      <ul class="pill-list">
+        <li>Itinerary-aware answers</li>
+        <li>Local knowledge, municipality by municipality</li>
+        <li>Proactive suggestions as your trip nears</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Midnight.png" alt="Adventure app — Ask Isla chat screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Ask Isla screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<!-- ===== Feature 4 — Offline ===== -->
+<section class="section-pad section-alt">
+  <div class="wrap feature-row reveal" data-reverse="true">
+    <div class="copy">
+      <p class="eyebrow">Offline-ready</p>
+      <h2>Your plan doesn't need signal to work.</h2>
+      <p class="desc">Inter-island crossings are exactly where signal disappears — so your saved itinerary, maps, and terminal details are cached on your device ahead of time. Changes sync automatically the moment you're back online.</p>
+      <ul class="pill-list">
+        <li>Offline itinerary access</li>
+        <li>Cached maps &amp; terminal info</li>
+        <li>Automatic background sync</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Red.png" alt="Adventure app — offline mode screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Offline mode screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<!-- ===== Feature 5 — Memories ===== -->
+<section class="section-pad">
+  <div class="wrap feature-row reveal">
+    <div class="copy">
+      <p class="eyebrow">Memories</p>
+      <h2>A travel journal you didn't have to build.</h2>
+      <p class="desc">Mark a place visited, and Adventure opens the door to drop in a photo and a quick note right there. By the end of the trip, every stop has a memory attached — organized by place, automatically.</p>
+      <ul class="pill-list">
+        <li>Photo memories per stop</li>
+        <li>Automatic trip timeline</li>
+        <li>Private by default</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Purple.png" alt="Adventure app — memories screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Memories screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="hairline">
+
+<!-- ===== Feature 6 — Group trips ===== -->
+<section class="section-pad section-alt">
+  <div class="wrap feature-row reveal" data-reverse="true">
+    <div class="copy">
+      <p class="eyebrow">Group trips</p>
+      <h2>One itinerary, everyone on the same page.</h2>
+      <p class="desc">Share your trip by QR code — anyone who scans in sees the same route, the same days, and the same ferry booking. Visited places sync across the whole group, so no one's asking "wait, did we already go there?"</p>
+      <ul class="pill-list">
+        <li>QR code trip joining</li>
+        <li>Shared visited-place tracking</li>
+        <li>Group photo memories</li>
+      </ul>
+    </div>
+    <div class="shot">
+      <div class="shot-frame">
+        <img src="css/Blue.png" alt="Adventure app — shared trip screen" onerror="this.parentElement.innerHTML='&lt;span class=\'shot-fallback\'&gt;Shared trip screen&lt;/span&gt;'">
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="route-divider" aria-hidden="true">
+  <svg viewBox="0 0 220 64"><path d="M4 32 Q 60 6, 110 32 T 216 32"/><circle cx="4" cy="32" r="2.4"/><circle cx="110" cy="32" r="2.4"/><circle cx="216" cy="32" r="2.4"/></svg>
+</div>
+
+<!-- ============================ CTA ============================ -->
+<section class="cta-band">
+  <div class="wrap">
+    <p class="eyebrow" style="justify-content:center;">Ready when you are</p>
+    <h2>Plan your first Romblon route.</h2>
+    <div class="actions">
+      <a href="contact.html" class="btn btn-ember">Get Early Access</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="index.html" class="brand"><img src="css/logo.png" alt="Adventure logo" class="brand-mark"> Adventure</a>
+        <p>A travel companion built specifically for Romblon Province — routes, ferries, and all.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Site</h4>
+          <ul>
+            <li><a href="features.html">Features</a></li>
+            <li><a href="romblon.html">Romblon</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="press.html">Press Kit</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get in touch</h4>
+          <ul>
+            <li><a href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a></li>
+            <li>Tablas, Romblon, Philippines</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Adventure. Built in Romblon.</span>
+      <span>Made by a solo developer who loves this province.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var nav = document.getElementById('siteNav');
+  var onScroll = function(){
+    if (window.scrollY > 40) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  };
+  window.addEventListener('scroll', onScroll, { passive:true });
+  onScroll();
+
+  var toggle = document.getElementById('navToggle');
+  var links = document.getElementById('siteNavLinks');
+  toggle.addEventListener('click', function(){
+    var open = links.classList.toggle('is-open');
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      links.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  var revealEls = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if (entry.isIntersecting) entry.target.classList.add('is-visible');
+      });
+    }, { threshold:0.15 });
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+})();
+</script>
+</body>
+</html>

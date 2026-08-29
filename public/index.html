@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>Adventure — Your Romblon Travel Companion</title>
+  <meta name="description"
+    content="Plan island-hopping trips across Romblon Province, track ferry routes and terminals, and build your own travel journal — all in one app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/footer.css" />
+  <style>
+    :root {
+      --ivory: #FDFBF7;
+      --sand: #F4EFEA;
+      --stone: #EFECE6;
+      --navy: #0B132B;
+      --slate: #1C2541;
+      --orange: #FF5A1F;
+      --orange-deep: #E04800;
+      --gold: #C5A059;
+      --line: rgba(11, 19, 43, 0.10);
+      --shadow: 0 20px 50px -20px rgba(11, 19, 43, 0.22);
+      --serif: 'Cormorant Garamond', serif;
+      --sans: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #FDFBF7;
+      color: #1C2541;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    :focus-visible {
+      outline: 2px solid #FF5A1F;
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .eyebrow {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #E04800;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 500;
+      color: #0B132B;
+      letter-spacing: 0.005em;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 30px;
+      border-radius: 2px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FF5A1F, #E04800);
+      color: #fff;
+      box-shadow: 0 14px 30px -10px rgba(224, 72, 0, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -12px rgba(224, 72, 0, 0.55);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: #0B132B;
+      border-color: rgba(11, 19, 43, 0.35);
+    }
+
+    .btn-outline:hover {
+      background: #0B132B;
+      color: #FDFBF7;
+      border-color: #0B132B;
+      transform: translateY(-3px);
+    }
+
+    /* header */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: transparent;
+      backdrop-filter: none;
+      transition: background 0.3s;
+    }
+
+    header.scrolled {
+      background: rgba(253, 251, 247, 0.85);
+      backdrop-filter: blur(14px) saturate(140%);
+      border-bottom: 1px solid rgba(11, 19, 43, 0.06);
+      box-shadow: 0 10px 30px -20px rgba(11, 19, 43, 0.25);
+    }
+
+    header.menu-active {
+      background: #FDFBF7;
+      border-bottom: 1px solid rgba(11, 19, 43, 0.06);
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      max-width: 1240px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 210;
+    }
+
+    .logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .logo span {
+      color: #FF5A1F;
+      font-style: italic;
+    }
+
+    .logo img {
+      height: 34px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.35));
+    }
+
+    header.scrolled .logo,
+    header.menu-active .logo {
+      color: #0B132B;
+      text-shadow: none;
+    }
+
+    header.scrolled .logo img,
+    header.menu-active .logo img {
+      filter: none;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 32px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .nav-links a {
+      position: relative;
+      color: #fff;
+      padding-bottom: 4px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    header.scrolled .nav-links a {
+      color: #1C2541;
+      text-shadow: none;
+    }
+
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1.5px;
+      background: #FF5A1F;
+      transition: width 0.3s;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta .btn {
+      padding: 10px 22px;
+      font-size: 0.8rem;
+    }
+
+    /* mobile-only CTA duplicated inside the slide-out menu — hidden on desktop */
+    .nav-mobile-cta {
+      display: none;
+    }
+
+    /* Hamburger toggle — hidden on desktop */
+    .nav-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 220;
+      position: relative;
+    }
+
+    .nav-toggle span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: #fff;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s ease;
+    }
+
+    header.scrolled .nav-toggle span,
+    header.menu-active .nav-toggle span {
+      background: #0B132B;
+    }
+
+    .nav-toggle.active span:nth-child(1) {
+      transform: translateY(7px) rotate(45deg);
+    }
+
+    .nav-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .nav-toggle.active span:nth-child(3) {
+      transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* HERO */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin-top: 0;
+      touch-action: pan-y;
+      /* allow vertical scroll by default; JS takes over for horizontal swipes */
+    }
+
+    .hero-bg-track {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-bg-slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center 60%;
+      opacity: 0;
+      transition: opacity 1.6s cubic-bezier(.45, 0, .15, 1);
+      will-change: opacity;
+    }
+
+    .hero-bg-slide.active {
+      opacity: 1;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0.15) 45%, rgba(0, 0, 0, 0.55) 100%);
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 120px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .hero-eyebrow .rule {
+      width: 34px;
+      height: 1.5px;
+      background: #C5A059;
+    }
+
+    .hero-eyebrow .eyebrow {
+      color: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 4.6vw, 3.4rem);
+      line-height: 1.08;
+      color: #fff;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+      margin-bottom: 12px;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: #FF5A1F;
+    }
+
+    .hero p.lede {
+      font-size: 1.05rem;
+      color: rgba(255, 255, 255, 0.92);
+      max-width: 460px;
+      margin: 0 auto 20px;
+      font-weight: 400;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-slide-label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .hero-slide-tag {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #FF5A1F;
+    }
+
+    .hero-slide-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: #fff;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .hero-slide-location {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .hero-slide-location svg {
+      width: 12px;
+      height: 12px;
+      color: #FF5A1F;
+      flex-shrink: 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+      width: 100%;
+    }
+
+    .hero-actions .btn-outline {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .hero-actions .btn-outline:hover {
+      background: #fff;
+      color: #0B132B;
+      border-color: #fff;
+    }
+
+    .hero-stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 20px;
+      width: 100%;
+      max-width: 640px;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .hero-stats>div {
+      padding: 0 26px;
+      border-left: 1px solid rgba(255, 255, 255, 0.25);
+      text-align: center;
+    }
+
+    .hero-stats>div:first-child {
+      padding-left: 0;
+      border-left: none;
+    }
+
+    .hero-stats div strong {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.9rem;
+      line-height: 1;
+      color: #fff;
+      font-weight: 500;
+      margin-bottom: 4px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero-stats div span {
+      display: block;
+      font-size: 0.68rem;
+      line-height: 1.3;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    /* gallery/hero-name label indicator dots (replaces removed arrow buttons) */
+    .hero-dots {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px;
+      position: relative;
+      z-index: 3;
+    }
+
+    .hero-dots button {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.3s, width 0.3s;
+    }
+
+    .hero-dots button.active {
+      background: #FF5A1F;
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    @media (max-width:760px) {
+      .hero-content {
+        padding: 100px 16px 32px;
+      }
+
+      .hero-stats {
+        padding-top: 16px;
+      }
+
+      .hero-stats>div {
+        padding: 0 12px;
+      }
+
+      .hero-stats div strong {
+        font-size: 1.4rem;
+      }
+
+      .hero-actions {
+        gap: 12px;
+      }
+
+      .hero-actions .btn {
+        padding: 11px 22px;
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width:480px) {
+      .hero-content {
+        padding: 92px 14px 28px;
+      }
+
+      .hero-actions {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .hero-stats>div {
+        padding: 0 8px;
+      }
+
+      .hero-stats div span {
+        font-size: 0.6rem;
+      }
+    }
+
+    .section-pad {
+      padding: 90px 0;
+    }
+
+    .section-head {
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    .section-head .eyebrow {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+      line-height: 1.08;
+    }
+
+    .vein-divider {
+      height: 80px;
+      background: #F4EFEA;
+      overflow: hidden;
+    }
+
+    .vein-divider svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Two-column content grids (Problem / About / Press sections).
+       Centralized here instead of inline styles so the mobile
+       collapse below can target real classes, not a style-string match. */
+    .grid-2col {
+      display: grid;
+    }
+
+    .grid-2col-intro {
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 50px;
+      align-items: start;
+    }
+
+    .grid-2col-feature {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    @media (max-width:900px) {
+      .grid-2col {
+        grid-template-columns: 1fr !important;
+        gap: 32px !important;
+      }
+    }
+
+    .gallery {
+      background: #F4EFEA;
+    }
+
+    .carousel {
+      position: relative;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px -20px rgba(11, 19, 43, 0.22);
+      background: #0B132B;
+      aspect-ratio: 16/9;
+      min-height: 460px;
+      touch-action: pan-y;
+      /* let vertical page scroll through; JS owns horizontal swipes */
+    }
+
+    .carousel-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .carousel-slide {
+      flex: 0 0 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .carousel-slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-slide .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(11, 19, 43, 0.05) 35%, rgba(11, 19, 43, 0.75) 100%);
+    }
+
+    .carousel-slide .caption {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 40px;
+      z-index: 2;
+      color: #fff;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .carousel-slide .caption .place-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: #C5A059;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .carousel-slide .caption .place-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: clamp(1.4rem, 3vw, 2.1rem);
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.5);
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+
+    .carousel-slide .caption .place-location {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: rgba(253, 251, 247, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .carousel-slide .caption .place-location svg {
+      width: 12px;
+      height: 12px;
+      color: #FF5A1F;
+      flex-shrink: 0;
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(253, 251, 247, 0.3);
+      background: rgba(11, 19, 43, 0.4);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.25s;
+    }
+
+    .carousel-btn:hover {
+      background: #E04800;
+      border-color: #E04800;
+    }
+
+    .carousel-btn.prev {
+      left: 14px;
+    }
+
+    .carousel-btn.next {
+      right: 14px;
+    }
+
+    .carousel-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .carousel-dots {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 12px;
+      z-index: 3;
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .carousel-dots button {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(253, 251, 247, 0.35);
+      cursor: pointer;
+      padding: 0;
+      transition: background 0.3s, width 0.3s;
+    }
+
+    .carousel-dots button.active {
+      background: #FF5A1F;
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    .carousel-count {
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      z-index: 3;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 0.85rem;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .carousel-thumbs {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .carousel-thumb {
+      height: 150px;
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      opacity: 0.5;
+      transition: opacity 0.3s, border-color 0.3s;
+    }
+
+    .carousel-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .carousel-thumb.active {
+      opacity: 1;
+      border-color: #FF5A1F;
+    }
+
+    @media (max-width:900px) {
+      .carousel-thumbs {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+
+      .carousel-thumb {
+        height: 100px;
+      }
+    }
+
+    @media (max-width:640px) {
+      .carousel {
+        aspect-ratio: 3/4;
+        min-height: 420px;
+      }
+
+      .carousel-btn {
+        width: 36px;
+        height: 36px;
+      }
+
+      .carousel-btn.prev {
+        left: 8px;
+      }
+
+      .carousel-btn.next {
+        right: 8px;
+      }
+
+      .carousel-slide .caption {
+        bottom: 44px;
+        padding: 0 16px;
+      }
+
+      .carousel-thumbs {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .carousel-thumb {
+        height: 90px;
+      }
+    }
+
+    @media (max-width:420px) {
+      .carousel-thumbs {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: rgba(11, 19, 43, 0.10);
+      border: 1px solid rgba(11, 19, 43, 0.10);
+    }
+
+    .feature-card {
+      background: #FDFBF7;
+      padding: 36px 28px;
+    }
+
+    .feature-card h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: rgba(28, 37, 65, 0.7);
+    }
+
+    .feature-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      color: #C5A059;
+      display: block;
+      margin-bottom: 14px;
+    }
+
+    .break {
+      min-height: 48vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background-image: linear-gradient(160deg, rgba(11, 19, 43, 0.6), rgba(11, 19, 43, 0.4)), url('css/logbon.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .break blockquote {
+      max-width: 720px;
+      padding: 0 24px;
+      color: #fff;
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: clamp(1.6rem, 3.2vw, 2.4rem);
+      line-height: 1.3;
+    }
+
+    .break cite {
+      display: block;
+      margin-top: 20px;
+      font-style: normal;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .steps {
+      max-width: 720px;
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid rgba(11, 19, 43, 0.08);
+    }
+
+    .step:last-child {
+      border-bottom: none;
+    }
+
+    .step-idx {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: #C5A059;
+      flex-shrink: 0;
+      width: 50px;
+    }
+
+    .step h3 {
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .step p {
+      color: rgba(28, 37, 65, 0.7);
+      font-size: 0.9rem;
+    }
+
+    /* App screens — real mockup images, no fake phone frames */
+    .app-screens {
+      background: #0B132B;
+    }
+
+    .app-screens .section-head h2 {
+      color: #FDFBF7;
+    }
+
+    .app-screens .eyebrow {
+      color: #C5A059;
+    }
+
+    .app-screens .section-head p {
+      color: rgba(253, 251, 247, 0.65);
+    }
+
+    .screen-row {
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      flex-wrap: wrap;
+      align-items: end;
+    }
+
+    .screen-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      width: 180px;
+      flex-shrink: 0;
+    }
+
+    .screen-item img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      display: block;
+    }
+
+    .screen-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1.15rem;
+      color: #fff;
+      text-align: center;
+    }
+
+    .screen-sub {
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #C5A059;
+      text-align: center;
+      margin-top: -10px;
+    }
+
+    @media (max-width:980px) {
+      .feature-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .wrap {
+        padding: 0 24px;
+      }
+    }
+
+    @media (max-width:760px) {
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100svh;
+        width: min(78vw, 320px);
+        background: #FDFBF7;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding: 120px 32px 40px; 
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(.2, .8, .2, 1);
+        box-shadow: -20px 0 50px -20px rgba(11, 19, 43, 0.3);
+        z-index: 200;
+      }
+
+      .nav-links.active {
+        transform: translateX(0);
+      }
+
+      .nav-links a {
+        color: #0B132B !important;
+        text-shadow: none !important;
+        font-size: 1.05rem;
+        width: 100%;
+        padding: 18px 0;;
+        border-bottom: 1px solid rgba(11, 19, 43, 0.08);
+      }
+
+      .nav-links .nav-mobile-cta {
+        display: block;
+        margin-top: 32px; 
+        width: 100%;
+        border-bottom: none;
+        padding: 0;
+      }
+
+      .nav-links .nav-mobile-cta .btn {
+        width: 100%;
+      }
+
+      .nav-links .nav-mobile-cta a.btn-primary {
+        color: #fff !important;
+        text-shadow: none !important;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .nav-toggle {
+        display: flex;
+      }
+
+      .nav-overlay {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: rgba(11, 19, 43, 0.4);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        z-index: 190;
+      }
+
+      .nav-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      nav {
+        padding: 14px 20px;
+      }
+
+      .break {
+        background-attachment: scroll;
+      }
+
+      .section-pad {
+        padding: 60px 0;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .screen-row {
+        gap: 20px;
+      }
+
+      .screen-item {
+        width: 140px;
+      }
+
+      .wrap {
+        padding: 0 20px;
+      }
+
+      .cta-inner {
+        text-align: center;
+        justify-content: center;
+      }
+
+      .cta-text {
+        max-width: 100%;
+      }
+
+      .cta-visual {
+        width: 140px;
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width:480px) {
+      .wrap {
+        padding: 0 16px;
+      }
+
+      .nav-links {
+        width: 100vw;
+        padding: 110px 24px 32px; 
+      }
+
+      .logo {
+        font-size: 1.4rem;
+      }
+
+      .screen-item {
+        width: 42%;
+      }
+
+      .screen-row {
+        gap: 14px 16px;
+      }
+
+      .step {
+        gap: 16px;
+      }
+
+      .step-idx {
+        width: 36px;
+        font-size: 1.2rem;
+      }
+    }
+
+    .cta-download {
+      background: #0B132B;
+      color: #FDFBF7;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cta-text {
+      max-width: 500px;
+    }
+
+    .cta-text .eyebrow {
+      color: #C5A059;
+    }
+
+    .cta-text h2 {
+      color: #FDFBF7;
+      font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+      margin: 12px 0 16px;
+    }
+
+    .cta-text p {
+      color: rgba(253, 251, 247, 0.7);
+      font-size: 0.95rem;
+    }
+
+    .cta-visual {
+      width: 200px;
+      flex-shrink: 0;
+    }
+
+    .cta-visual img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <header id="siteHeader">
+    <nav>
+      <a href="#top" class="logo">Adventure<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#top">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#press">Press</a></li>
+        <li><a href="#contact">Contact</a></li>
+        <li class="nav-mobile-cta"><a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a></li>
+      </ul>
+      <div class="nav-cta"><a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false"
+        aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+  </header>
+
+  <main id="top">
+    <section class="hero" id="heroSection">
+      <div class="hero-bg-track" id="heroBgTrack">
+        <div class="hero-bg-slide active" style="background-image:url('css/tambuyongan.jpg');"></div>
+        <div class="hero-bg-slide" style="background-image:url('css/cresta.jpg');"></div>
+        <div class="hero-bg-slide" style="background-image:url('css/looc.jpg');"></div>
+        <div class="hero-bg-slide" style="background-image:url('css/fuerza.jpg');"></div>
+        <div class="hero-bg-slide" style="background-image:url('css/bon.jpg');"></div>
+      </div>
+      <div class="hero-overlay"></div>
+
+      <div class="hero-content">
+        <h1>Island-hop <em>Romblon</em>, ferry by ferry.</h1>
+        <p class="lede">Plan your route, track terminals, and build your travel journal — all in one app.</p>
+
+        <div class="hero-actions">
+          <a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a>
+          <a href="#gallery" class="btn btn-outline">Explore Romblon</a>
+        </div>
+
+        <div class="hero-stats">
+          <div><strong>17</strong><span>Municipalities mapped</span></div>
+          <div><strong>7</strong><span>Major islands</span></div>
+          <div><strong>30+</strong><span>Places &amp; dive spots</span></div>
+        </div>
+
+        <div class="hero-slide-label" id="heroSlideLabel">
+          <span class="hero-slide-tag" id="heroSlideTag">Coastline</span>
+          <span class="hero-slide-name" id="heroSlideName">Tambuyongan</span>
+          <span class="hero-slide-location">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+              <circle cx="12" cy="9" r="2.4" />
+            </svg>
+            <span id="heroSlideRegion">Romblon</span>
+          </span>
+        </div>
+
+        <div class="hero-dots" id="heroDots"></div>
+      </div>
+    </section>
+
+    <!-- problem -->
+    <section class="section-pad" style="background:#FDFBF7;">
+      <div class="wrap grid-2col grid-2col-intro">
+        <div><span class="eyebrow">The Problem</span>
+          <h2 style="font-size:clamp(1.6rem,3vw,2.2rem);">Romblon isn't one destination. It's a chain of them.</h2>
+        </div>
+        <div>
+          <p>Getting from Tablas to Sibuyan, or Romblon, means working around ferry schedules that don't run
+            on your itinerary's clock. Most trip planners are built for cities with roads — not provinces held together
+            by boats.</p>
+          <p style="font-weight:500; color:#0B132B;">Adventure is built the other way around: routes, terminals, and
+            ferries come first, and your itinerary is built to fit them.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="vein-divider" aria-hidden="true"><svg viewBox="0 0 1200 80">
+        <rect width="1200" height="80" fill="#F4EFEA" />
+        <path d="M0,40 C150,10 280,65 420,35 C560,5 640,60 800,30 C920,5 1040,55 1200,30" fill="none" stroke="#C5A059"
+          stroke-width="1.2" opacity="0.6" />
+      </svg></div>
+
+    <!-- gallery carousel -->
+    <section class="gallery section-pad" id="gallery">
+      <div class="wrap">
+        <div class="section-head">
+          <h2 style="font-size:clamp(1.8rem,3.2vw,2.6rem);">Places you <em
+              style="font-style:italic;color:#E04800;">must</em> visit.</h2>
+          <p style="color:rgba(28,37,65,0.7);">From marble workshops to hidden coves, scattered across the islands of
+            Romblon.</p>
+        </div>
+        <div class="carousel" id="carousel" role="region" style="margin-top:24px;">
+          <div class="carousel-count" id="carouselCount">1 / 5</div>
+          <div class="carousel-track" id="carouselTrack">
+            <div class="carousel-slide"><img src="css/mount_guiting-beyondlens.jpg" alt="Mount Guiting-Guiting" />
+              <div class="overlay"></div>
+              <div class="caption"><span class="place-tag">Mountain</span><span class="place-name">Mount
+                  Guiting-Guiting</span><span class="place-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+                    <circle cx="12" cy="9" r="2.4" />
+                  </svg>Romblon</span></div>
+            </div>
+            <div class="carousel-slide"><img src="css/bel at.jpg" alt="Bel-at Point" />
+              <div class="overlay"></div>
+              <div class="caption"><span class="place-tag">Point</span><span class="place-name">Bel-at
+                  Point</span><span class="place-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+                    <circle cx="12" cy="9" r="2.4" />
+                  </svg>Romblon</span></div>
+            </div>
+            <div class="carousel-slide"><img src="css/crestadegallo-Wander Twins.jpg" alt="Cresta De Gallo" />
+              <div class="overlay"></div>
+              <div class="caption"><span class="place-tag">Beach</span><span class="place-name">Cresta De
+                  Gallo</span><span class="place-location"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="1.8">
+                    <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+                    <circle cx="12" cy="9" r="2.4" />
+                  </svg>Romblon</span></div>
+            </div>
+            <div class="carousel-slide"><img src="css/Turtle Cove.jpg" alt="Turtle Cove" />
+              <div class="overlay"></div>
+              <div class="caption"><span class="place-tag">Cove</span><span class="place-name">Turtle
+                  Cove</span><span class="place-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+                    <circle cx="12" cy="9" r="2.4" />
+                  </svg>Romblon</span></div>
+            </div>
+            <div class="carousel-slide"><img src="css/bonbon.jpg" alt="Bon Bon Beach" />
+              <div class="overlay"></div>
+              <div class="caption"><span class="place-tag">Beach</span><span class="place-name">Bon Bon
+                  Beach</span><span class="place-location"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="1.8">
+                    <path d="M12 22s7-7.4 7-13a7 7 0 1 0-14 0c0 5.6 7 13 7 13z" />
+                    <circle cx="12" cy="9" r="2.4" />
+                  </svg>Romblon</span></div>
+            </div>
+          </div>
+          <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous place"><svg viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg></button>
+          <button class="carousel-btn next" id="carouselNext" aria-label="Next place"><svg viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg></button>
+          <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+        <div class="carousel-thumbs" id="carouselThumbs">
+          <div class="carousel-thumb active" data-index="0"><img src="css/mount_guiting-beyondlens.jpg"
+              alt="Mount Guiting-Guiting" /></div>
+          <div class="carousel-thumb" data-index="1"><img src="css/bel at.jpg" alt="Bel-at Point" /></div>
+          <div class="carousel-thumb" data-index="2"><img src="css/crestadegallo-Wander Twins.jpg"
+              alt="Cresta De Gallo" /></div>
+          <div class="carousel-thumb" data-index="3"><img src="css/Turtle Cove.jpg" alt="Turtle Cove" /></div>
+          <div class="carousel-thumb" data-index="4"><img src="css/bonbon.jpg" alt="Bon Bon Beach" /></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- features -->
+    <section class="section-pad" id="features" style="background:#FDFBF7;">
+      <div class="wrap">
+        <div class="section-head"><span class="eyebrow">What It Does</span>
+          <h2>Everything you need between islands.</h2>
+        </div>
+        <div class="feature-grid">
+          <div class="feature-card"><span class="feature-num">Planning</span>
+            <h3>Route-Aware Planning</h3>
+            <p>Pick your islands, Adventure chains your itinerary around real ferry routes.</p>
+          </div>
+          <div class="feature-card"><span class="feature-num">Ferries</span>
+            <h3>Ferry Schedules &amp; Routes</h3>
+            <p>Browse available ferries, compare schedules, and find the best connection for your trip.</p>
+          </div>
+          <div class="feature-card"><span class="feature-num">Isla</span>
+            <h3>Isla, Trip Assistant</h3>
+            <p>Ask Isla about a municipality, fiesta date, or what to do in Odiongan.</p>
+          </div>
+          <div class="feature-card"><span class="feature-num">Offline</span>
+            <h3>Works Without Signal</h3>
+            <p>Saved itinerary, maps, and terminal details cached offline.</p>
+          </div>
+          <div class="feature-card"><span class="feature-num">Journal</span>
+            <h3>Auto-Built Journal</h3>
+            <p>Mark places visited, drop photos, and get a travel journal without trying.</p>
+          </div>
+          <div class="feature-card"><span class="feature-num">Map</span>
+            <h3>Travel Map Journal</h3>
+            <p>Every place you mark drops a pin on your personal map.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- how it works -->
+    <section class="section-pad" style="background:#F4EFEA;">
+      <div class="wrap">
+        <div class="section-head"><span class="eyebrow">How a Trip Comes Together</span>
+          <h2>Three steps, ferries already accounted.</h2>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <div class="step-idx">01</div>
+            <div>
+              <h3>Choose your islands</h3>
+              <p>Pick starting and ending points — one or multi-island.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-idx">02</div>
+            <div>
+              <h3>Adventure builds the route</h3>
+              <p>Places, terminals, ferry connections arranged day-by-day.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-idx">03</div>
+            <div>
+              <h3>Travel, mark, remember</h3>
+              <p>Check off places, add photos, end with a journal.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- parallax -->
+    <section class="break">
+      <blockquote>"Marble islands, quiet coves, and a lot of ferries in between."<cite>— Adventure, on Romblon
+          Province</cite></blockquote>
+    </section>
+
+    <!-- app screens — real mockup images -->
+    <section class="app-screens section-pad">
+      <div class="wrap">
+        <div class="section-head"><span class="eyebrow">Inside the App</span>
+          <h2>Built for the trip.</h2>
+        </div>
+        <div class="screen-row">
+          <div class="screen-item">
+            <img src="css/home.png" alt="Home screen" />
+            <div class="screen-label">Home Screen</div>
+            <div class="screen-sub">Starts Here</div>
+          </div>
+          <div class="screen-item">
+            <img src="css/itinerary.png" alt="Your Itinerary screen" />
+            <div class="screen-label">Your Itinerary</div>
+            <div class="screen-sub">Ferry-aware</div>
+          </div>
+          <div class="screen-item">
+            <img src="css/transpo.png" alt="Ferry Routes screen" />
+            <div class="screen-label">Ferry Routes</div>
+            <div class="screen-sub">Terminal status</div>
+          </div>
+          <div class="screen-item">
+            <img src="css/islachat.png" alt="Ask Isla screen" />
+            <div class="screen-label">Ask Isla</div>
+            <div class="screen-sub">Trip assistant</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- about -->
+    <section class="section-pad" id="about" style="background:#FDFBF7;">
+      <div class="wrap grid-2col grid-2col-feature">
+        <div><span class="eyebrow">About</span>
+          <h2>Built by people who kept coming back to Romblon.</h2>
+          <p style="margin-top:16px; color:rgba(28,37,65,0.7);">Adventure isn't a travel-tech startup with a Romblon
+            feature. It started as a personal passion for the province, built specifically for its ferries, terminals,
+            and islands.</p><a href="about.html" class="btn btn-primary" style="margin-top:24px;">Read the Full Story
+            →</a>
+        </div>
+        <div
+          style="background:#fff; padding:32px 28px; border-radius:4px; box-shadow:0 20px 50px -20px rgba(11,19,43,0.2); border:1px solid rgba(197,160,89,0.2);">
+          <div style="padding:14px 0; border-bottom:1px solid rgba(11,19,43,0.08);"><strong
+              style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;">Independently Built</strong><span
+              style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Designed and developed from the ground
+              up.</span></div>
+          <div style="padding:14px 0; border-bottom:1px solid rgba(11,19,43,0.08);"><strong
+              style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;">Romblon-First</strong><span
+              style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Built around this province
+              specifically.</span></div>
+          <div style="padding:14px 0;"><strong
+              style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;">Community-Informed</strong><span
+              style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Developed with local input.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- press -->
+    <section class="section-pad" id="press" style="background:#F4EFEA;">
+      <div class="wrap grid-2col grid-2col-feature">
+        <div><span class="eyebrow">Press Kit</span>
+          <h2>For journalists, officials, and partners.</h2>
+          <p style="margin-top:16px; color:rgba(28,37,65,0.7);">Boilerplate, founder background, photo credits —
+            everything to cover Adventure accurately.</p><a href="press.html" class="btn btn-primary"
+            style="margin-top:24px;">View Press Kit →</a>
+        </div>
+        <div
+          style="background:#fff; padding:28px 24px; border-radius:4px; box-shadow:0 20px 50px -20px rgba(11,19,43,0.15); border:1px solid rgba(197,160,89,0.2);">
+          <div style="padding:12px 0; border-bottom:1px solid rgba(11,19,43,0.08);"><strong
+              style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Boilerplate &amp; One-Liner</strong><span
+              style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Ready-to-use descriptions.</span></div>
+          <div style="padding:12px 0; border-bottom:1px solid rgba(11,19,43,0.08);"><strong
+              style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Founder Background</strong><span
+              style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Bryan Ronnie Briones </span></div>
+          <div style="padding:12px 0;"><strong style="font-family:'Cormorant Garamond',serif;font-size:1.1rem;">Photo
+              Credits</strong><span style="display:block;font-size:0.85rem;color:rgba(28,37,65,0.6);">Sourced from local
+              Romblon photographers.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- contact cta -->
+    <section class="cta-download section-pad" id="contact">
+      <div class="wrap cta-inner">
+        <div class="cta-text"><span class="eyebrow">Contact</span>
+          <h2>Let's talk.</h2>
+          <p>Whether you want early access, represent a local organization, or covering Romblon tourism — this reaches
+            Bryan directly.</p><a href="contact.html" class="btn btn-primary" style="margin-top:24px;">Send a Message
+            →</a>
+          <p style="margin-top:12px;font-size:0.75rem;color:rgba(253,251,247,0.5);">Usually a reply within a few days.
+          </p>
+        </div>
+        <div class="cta-visual">
+          <img src="css/help.png" alt="app preview" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="#top" class="logo">Adventure<span style="color:#FF5A1F;font-style:italic;">.</span></a>
+          <p>A travel companion built specifically for Romblon Province.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Site</h4>
+          <ul>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#press">Press Kit</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get in Touch</h4>
+          <ul>
+            <li><a href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a></li>
+            <li>Tablas, Romblon, Philippines</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Adventure. Built in Romblon.</span>
+        <span>Made by people who love this province.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // header scroll
+    const header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
+
+    // mobile nav toggle
+    (function () {
+      const toggle = document.getElementById('navToggle');
+      const links = document.getElementById('navLinks');
+      const overlay = document.getElementById('navOverlay');
+      const body = document.body;
+
+      function closeMenu() {
+        toggle.classList.remove('active');
+        links.classList.remove('active');
+        overlay.classList.remove('active');
+        header.classList.remove('menu-active');
+        toggle.setAttribute('aria-expanded', 'false');
+        body.classList.remove('menu-open');
+      }
+
+      function openMenu() {
+        toggle.classList.add('active');
+        links.classList.add('active');
+        overlay.classList.add('active');
+        header.classList.add('menu-active');
+        toggle.setAttribute('aria-expanded', 'true');
+        body.classList.add('menu-open');
+      }
+
+      toggle.addEventListener('click', () => {
+        const isOpen = links.classList.contains('active');
+        isOpen ? closeMenu() : openMenu();
+      });
+
+      overlay.addEventListener('click', closeMenu);
+      links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+      window.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 760) closeMenu(); });
+    })();
+
+    // hero background carousel (swipe / keyboard / autoplay)
+    (function () {
+      const slides = Array.from(document.querySelectorAll('.hero-bg-slide'));
+      const tagEl = document.getElementById('heroSlideTag'), nameEl = document.getElementById('heroSlideName');
+      const regionEl = document.getElementById('heroSlideRegion');
+      const dotsWrap = document.getElementById('heroDots');
+      const total = slides.length; let index = 0, timer = null;
+      const meta = [
+        { tag: 'Coastline', name: 'Tambuyongan', region: 'Romblon' },
+        { tag: 'Beach', name: 'Cresta De Gallo', region: 'Romblon' },
+        { tag: 'Sanctuary', name: 'Looc Marine Sanctuary', region: 'Romblon' },
+        { tag: 'History', name: 'Fuerza San Andres', region: 'Romblon' },
+        { tag: 'Beach', name: 'Bon Bon Beach', region: 'Romblon' }
+      ];
+
+      slides.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        if (i === 0) d.classList.add('active');
+        d.addEventListener('click', () => goTo(i));
+        dotsWrap.appendChild(d);
+      });
+      const dots = Array.from(dotsWrap.children);
+
+      function render() {
+        slides.forEach((s, i) => s.classList.toggle('active', i === index));
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        tagEl.textContent = meta[index].tag;
+        nameEl.textContent = meta[index].name;
+        regionEl.textContent = meta[index].region;
+      }
+      function goTo(i) { index = (i + total) % total; render(); resetTimer(); }
+      function resetTimer() { clearInterval(timer); timer = setInterval(() => goTo(index + 1), 5500); }
+
+      const heroEl = document.getElementById('heroSection');
+
+      // --- swipe handling ---
+      let startX = 0, startY = 0, deltaX = 0;
+      let tracking = false, directionLocked = false, isHorizontal = false;
+      const SWIPE_THRESHOLD = 45;   // min px to trigger a slide change
+      const DIRECTION_LOCK_PX = 8;  // px moved before we decide h vs v
+
+      heroEl.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        deltaX = 0;
+        tracking = true;
+        directionLocked = false;
+        isHorizontal = false;
+        clearInterval(timer); // pause autoplay while the user's finger is down
+      }, { passive: true });
+
+      heroEl.addEventListener('touchmove', e => {
+        if (!tracking) return;
+        const t = e.touches[0];
+        deltaX = t.clientX - startX;
+        const deltaY = t.clientY - startY;
+
+        if (!directionLocked) {
+          if (Math.abs(deltaX) > DIRECTION_LOCK_PX || Math.abs(deltaY) > DIRECTION_LOCK_PX) {
+            isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+            directionLocked = true;
+          }
+        }
+
+        // once we know it's a horizontal swipe, stop the page from scrolling vertically
+        if (directionLocked && isHorizontal && e.cancelable) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      function endSwipe() {
+        if (tracking && isHorizontal) {
+          if (deltaX > SWIPE_THRESHOLD) goTo(index - 1);
+          else if (deltaX < -SWIPE_THRESHOLD) goTo(index + 1);
+          else resetTimer();
+        } else {
+          resetTimer();
+        }
+        tracking = false;
+        directionLocked = false;
+        isHorizontal = false;
+      }
+
+      heroEl.addEventListener('touchend', endSwipe);
+      heroEl.addEventListener('touchcancel', endSwipe);
+
+      heroEl.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') goTo(index - 1); if (e.key === 'ArrowRight') goTo(index + 1); });
+      heroEl.addEventListener('mouseenter', () => clearInterval(timer));
+      heroEl.addEventListener('mouseleave', () => resetTimer());
+
+      render(); resetTimer();
+    })();
+
+    // gallery carousel (swipe / keyboard / arrows / thumbs)
+    (function () {
+      const track = document.getElementById('carouselTrack'), slides = Array.from(track.children);
+      const prevBtn = document.getElementById('carouselPrev'), nextBtn = document.getElementById('carouselNext');
+      const dotsWrap = document.getElementById('carouselDots'), countEl = document.getElementById('carouselCount');
+      const thumbs = Array.from(document.querySelectorAll('.carousel-thumb'));
+      const total = slides.length; let index = 0;
+
+      slides.forEach((_, i) => {
+        const d = document.createElement('button');
+        d.setAttribute('aria-label', 'Go to place ' + (i + 1));
+        if (i === 0) d.classList.add('active');
+        d.addEventListener('click', () => goTo(i));
+        dotsWrap.appendChild(d);
+      });
+      const dots = Array.from(dotsWrap.children);
+
+      function render() {
+        track.style.transform = 'translateX(-' + (index * 100) + '%)';
+        dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+        countEl.textContent = (index + 1) + ' / ' + total;
+      }
+      function goTo(i) { index = (i + total) % total; render(); }
+
+      prevBtn.addEventListener('click', () => goTo(index - 1));
+      nextBtn.addEventListener('click', () => goTo(index + 1));
+      thumbs.forEach(t => t.addEventListener('click', () => goTo(parseInt(t.dataset.index, 10))));
+
+      const carouselEl = document.getElementById('carousel');
+      carouselEl.addEventListener('keydown', e => { if (e.key === 'ArrowLeft') goTo(index - 1); if (e.key === 'ArrowRight') goTo(index + 1); });
+
+      // --- swipe handling (direction-locked, matches hero behavior) ---
+      let startX = 0, startY = 0, deltaX = 0;
+      let tracking = false, directionLocked = false, isHorizontal = false;
+      const SWIPE_THRESHOLD = 40;
+      const DIRECTION_LOCK_PX = 8;
+
+      track.addEventListener('touchstart', e => {
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        deltaX = 0;
+        tracking = true;
+        directionLocked = false;
+        isHorizontal = false;
+      }, { passive: true });
+
+      track.addEventListener('touchmove', e => {
+        if (!tracking) return;
+        const t = e.touches[0];
+        deltaX = t.clientX - startX;
+        const deltaY = t.clientY - startY;
+
+        if (!directionLocked) {
+          if (Math.abs(deltaX) > DIRECTION_LOCK_PX || Math.abs(deltaY) > DIRECTION_LOCK_PX) {
+            isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+            directionLocked = true;
+          }
+        }
+
+        if (directionLocked && isHorizontal && e.cancelable) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+
+      function endSwipe() {
+        if (tracking && isHorizontal) {
+          if (deltaX > SWIPE_THRESHOLD) goTo(index - 1);
+          else if (deltaX < -SWIPE_THRESHOLD) goTo(index + 1);
+        }
+        tracking = false;
+        directionLocked = false;
+        isHorizontal = false;
+      }
+
+      track.addEventListener('touchend', endSwipe);
+      track.addEventListener('touchcancel', endSwipe);
+
+      render();
+    })();
+  </script>
+</body>
+
+</html>

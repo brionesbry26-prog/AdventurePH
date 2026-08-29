@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact — Adventure</title>
+  <meta name="description"
+    content="Get early access, reach out about press, or connect as a local organization or partner.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/header.css">
+
+  <style>
+    :root {
+      --ivory: #FDFBF7;
+      --sand: #F4EFEA;
+      --stone: #EFECE6;
+      --navy: #0B132B;
+      --slate: #1C2541;
+      --orange: #FF5A1F;
+      --orange-deep: #E04800;
+      --gold: #C5A059;
+      --terracotta: #D97736;
+      --line: rgba(11, 19, 43, 0.10);
+      --shadow: 0 20px 50px -20px rgba(11, 19, 43, 0.22);
+      --serif: 'Cormorant Garamond', serif;
+      --sans: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--slate);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 3px;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--orange-deep);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--serif);
+      font-weight: 500;
+      color: var(--navy);
+      letter-spacing: 0.005em;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 34px;
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.92rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.35s cubic-bezier(.2, .8, .2, 1), box-shadow 0.35s ease, background 0.3s ease, color 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+      color: #fff;
+      box-shadow: 0 14px 30px -10px rgba(224, 72, 0, 0.55);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -12px rgba(224, 72, 0, 0.6);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.65;
+      cursor: default;
+      transform: none;
+      box-shadow: 0 14px 30px -10px rgba(224, 72, 0, 0.4);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--navy);
+      border-color: rgba(11, 19, 43, 0.35);
+    }
+
+    .btn-outline:hover {
+      background: var(--navy);
+      color: var(--ivory);
+      border-color: var(--navy);
+      transform: translateY(-3px);
+    }
+
+    /* ---------- SECTION SHELL ---------- */
+    section {
+      position: relative;
+    }
+
+    .section-pad {
+      padding: 130px 0;
+    }
+
+    .section-head {
+      max-width: 640px;
+      margin-bottom: 64px;
+    }
+
+    .section-head .eyebrow {
+      margin-bottom: 18px;
+      display: block;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2.2rem, 4vw, 3.2rem);
+      line-height: 1.08;
+    }
+
+    .section-head p {
+      margin-top: 20px;
+      color: rgba(28, 37, 65, 0.72);
+      font-size: 1.02rem;
+      max-width: 520px;
+    }
+
+    /* ---------- PAGE HERO ---------- */
+    .page-hero {
+      padding: 170px 0 90px;
+      background: linear-gradient(180deg, var(--sand) 0%, var(--ivory) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::after {
+      content: '';
+      position: absolute;
+      top: -22%;
+      right: -8%;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 160, 89, 0.18), transparent 70%);
+    }
+
+    .page-hero .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .page-hero .eyebrow {
+      color: var(--orange-deep);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .page-hero .eyebrow .rule {
+      width: 34px;
+      height: 1.5px;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(2.2rem, 4.6vw, 3.4rem);
+      line-height: 1.08;
+      margin-bottom: 16px;
+    }
+
+    .page-hero .lede {
+      font-size: 1.05rem;
+      color: rgba(28, 37, 65, 0.72);
+      max-width: 520px;
+      font-weight: 400;
+    }
+
+    /* quick-facts row under the lede — dot-marked, not a heavy stat block */
+    .hero-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 30px;
+      margin-top: 30px;
+      padding-top: 26px;
+      border-top: 1px solid rgba(11, 19, 43, 0.1);
+      max-width: 600px;
+    }
+
+    .hero-facts span {
+      position: relative;
+      padding-left: 16px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(28, 37, 65, 0.68);
+    }
+
+    .hero-facts span::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--orange-deep);
+    }
+
+    /* ---------- STORY GRID ---------- */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .story-grid h2 {
+      font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+      margin-bottom: 22px;
+    }
+
+    /* ---------- CONTACT FORM ---------- */
+    .form-panel {
+      background: #fff;
+      border-radius: 6px;
+      padding: 44px 40px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(11, 19, 43, 0.06);
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      margin-top: 28px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .contact-form label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(11, 19, 43, 0.55);
+      margin-bottom: 9px;
+    }
+
+    .field-input-wrap {
+      position: relative;
+    }
+
+    .field-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      display: flex;
+      color: rgba(11, 19, 43, 0.32);
+      pointer-events: none;
+      transition: color 0.25s ease;
+    }
+
+    .field-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .field-input-wrap.textarea-wrap .field-icon {
+      top: 18px;
+      transform: none;
+    }
+
+    .field-input-wrap:focus-within .field-icon {
+      color: var(--orange-deep);
+    }
+
+    .contact-form input[type="text"],
+    .contact-form input[type="email"],
+    .contact-form select,
+    .contact-form textarea {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      border-radius: 3px;
+      border: 1px solid rgba(11, 19, 43, 0.16);
+      background: var(--ivory);
+      font-family: var(--sans);
+      font-size: 0.95rem;
+      color: var(--navy);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    }
+
+    .contact-form input:focus,
+    .contact-form select:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      border-color: var(--orange-deep);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(255, 90, 31, 0.12);
+    }
+
+    .contact-form textarea {
+      min-height: 150px;
+      resize: vertical;
+      padding-top: 16px;
+    }
+
+    .contact-form select {
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 40px;
+      cursor: pointer;
+    }
+
+    .field-input-wrap.select-wrap::after {
+      content: '';
+      position: absolute;
+      right: 18px;
+      top: 44%;
+      width: 8px;
+      height: 8px;
+      border-right: 1.6px solid rgba(11, 19, 43, 0.4);
+      border-bottom: 1.6px solid rgba(11, 19, 43, 0.4);
+      transform: translateY(-50%) rotate(45deg);
+      pointer-events: none;
+    }
+
+    input[name="_honey"] {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .form-note {
+      font-size: 0.78rem;
+      color: rgba(28, 37, 65, 0.5);
+    }
+
+    #contactStatus {
+      padding: 14px 18px;
+      border-radius: 3px;
+      background: var(--sand);
+      border-left: 3px solid rgba(11, 19, 43, 0.3);
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: rgba(28, 37, 65, 0.78);
+    }
+
+    #contactStatus:empty {
+      display: none;
+      padding: 0;
+      margin: 0;
+      border: none;
+      background: none;
+    }
+
+    #contactStatus.is-error {
+      background: rgba(224, 72, 0, 0.08);
+      border-left-color: var(--orange-deep);
+      color: #a83e00;
+    }
+
+    #contactStatus.is-success {
+      background: rgba(11, 19, 43, 0.06);
+      border-left-color: var(--navy);
+      color: var(--navy);
+    }
+
+    /* ---------- BOARDING PASS (signature contact card) ---------- */
+    .boarding-pass {
+      position: relative;
+      background: #fff;
+      border-radius: 6px;
+      padding: 38px 34px 30px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(197, 160, 89, 0.32);
+      overflow: hidden;
+    }
+
+    .boarding-pass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--gold));
+    }
+
+    .bp-head h3 {
+      font-size: 1.55rem;
+      margin-top: 10px;
+      line-height: 1.15;
+    }
+
+    .route-strip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 26px 0 6px;
+    }
+
+    .route-strip .stop {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .route-strip .route-line {
+      flex: 1;
+      position: relative;
+      height: 1px;
+      background: repeating-linear-gradient(to right, var(--gold) 0 6px, transparent 6px 13px);
+    }
+
+    .route-strip .route-line .ferry-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange-deep);
+    }
+
+    .route-strip .route-line .ferry-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ticket-perf {
+      height: 0;
+      border-top: 1.5px dashed rgba(11, 19, 43, 0.16);
+      position: relative;
+      margin: 24px 0 6px;
+    }
+
+    .ticket-perf::before,
+    .ticket-perf::after {
+      content: '';
+      position: absolute;
+      top: -11px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--ivory);
+    }
+
+    .ticket-perf::before {
+      left: -33px;
+    }
+
+    .ticket-perf::after {
+      right: -33px;
+    }
+
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding: 13px 0;
+      border-bottom: 1px dashed rgba(11, 19, 43, 0.1);
+    }
+
+    .ticket-row:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-row .t-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: rgba(28, 37, 65, 0.5);
+      flex-shrink: 0;
+    }
+
+    .ticket-row .t-value {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--navy);
+      text-align: right;
+    }
+
+    .ticket-row a.t-value:hover {
+      color: var(--orange-deep);
+    }
+
+    .gov-notice {
+      display: flex;
+      gap: 16px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 26px;
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--gold);
+    }
+
+    .gov-notice .gov-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--sand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange-deep);
+    }
+
+    .gov-notice .gov-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .gov-notice h4 {
+      font-size: 1.05rem;
+      margin: 3px 0 8px;
+    }
+
+    .gov-notice p {
+      font-size: 0.87rem;
+      color: rgba(28, 37, 65, 0.68);
+      margin: 0;
+    }
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width: 980px) {
+      .wrap {
+        padding: 0 24px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .story-grid {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .form-panel {
+        padding: 36px 28px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 22px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 0 20px;
+      }
+
+      .section-pad {
+        padding: 90px 0;
+      }
+
+      .page-hero {
+        padding: 150px 0 70px;
+      }
+
+      .boarding-pass,
+      .form-panel {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .ticket-perf::before {
+        left: -25px;
+      }
+
+      .ticket-perf::after {
+        right: -25px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .wrap {
+        padding: 0 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header id="siteHeader">
+    <nav>
+      <a href="index.html" class="logo">Adventure<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="press.html">Press</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+        <li class="nav-mobile-cta"><a href="index.html#download" class="btn btn-primary">Get Early Access</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="index.html#download" class="btn btn-primary">Get Early Access</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false"
+        aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+  </header>
+
+  <main>
+
+    <!-- PAGE HERO -->
+    <header class="page-hero">
+      <div class="wrap">
+        <span class="eyebrow"><span class="rule"></span>Contact</span>
+        <h1>Let's talk — Bryan is <em>listening</em> and <em style="color:#FF5A1F;">ready.</em></h1>
+        <p class="lede">Whether you want early access, represent a local organization, or you're covering Romblon
+          tourism — this reaches Bryan directly.</p>
+      </div>
+    </header>
+
+    <div class="vein-divider" aria-hidden="true">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <rect width="1200" height="120" fill="#FDFBF7"></rect>
+        <path d="M0,60 C150,20 280,95 420,55 C560,15 640,90 800,45 C920,10 1040,75 1200,40" fill="none" stroke="#C5A059"
+          stroke-width="1.4" opacity="0.7"></path>
+        <path d="M0,80 C180,50 320,110 480,75 C620,45 700,105 860,70 C980,45 1080,95 1200,65" fill="none"
+          stroke="#0B132B" stroke-width="0.6" opacity="0.18"></path>
+        <path d="M0,40 C120,65 260,10 400,35 C540,60 660,15 820,38 C960,58 1080,25 1200,48" fill="none" stroke="#D97736"
+          stroke-width="0.7" opacity="0.35"></path>
+      </svg>
+    </div>
+
+    <!-- CONTACT FORM + INFO -->
+    <section class="section-pad">
+      <div class="wrap story-grid">
+
+        <div class="form-panel">
+          <span class="eyebrow">Send a Message</span>
+          <h2 style="margin:16px 0 0;">Tell Bryan what you need.</h2>
+
+          <!-- ✅ SECURE FORM - Uses serverless function, NO Firebase config -->
+          <form id="contactForm" class="contact-form" novalidate>
+            <div class="form-row">
+              <div class="field">
+                <label for="name">Name</label>
+                <div class="field-input-wrap">
+                  <span class="field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.6">
+                      <circle cx="12" cy="8" r="4" />
+                      <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+                    </svg></span>
+                  <input type="text" id="name" name="name" required maxlength="80" placeholder="Your name">
+                </div>
+              </div>
+              <div class="field">
+                <label for="email">Email</label>
+                <div class="field-input-wrap">
+                  <span class="field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                      stroke-width="1.6">
+                      <rect x="3" y="5" width="18" height="14" rx="2" />
+                      <path d="M3 7l9 6 9-6" />
+                    </svg></span>
+                  <input type="email" id="email" name="email" required maxlength="120" placeholder="you@email.com">
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="reason">I'm reaching out about</label>
+              <div class="field-input-wrap select-wrap">
+                <span class="field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M20 12l-8 8-9-9V4h7z" />
+                    <circle cx="7.5" cy="7.5" r="1.1" />
+                  </svg></span>
+                <select id="reason" name="reason">
+                  <option value="Early access">Early access</option>
+                  <option value="Local government / tourism office">Local government / tourism office</option>
+                  <option value="Press or media">Press or media</option>
+                  <option value="Partnership">Partnership</option>
+                  <option value="Something else">Something else</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="message">Message</label>
+              <div class="field-input-wrap textarea-wrap">
+                <span class="field-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M4 4h16v12H8l-4 4z" />
+                  </svg></span>
+                <textarea id="message" name="message" required maxlength="2000"
+                  placeholder="What can Bryan help with?"></textarea>
+              </div>
+            </div>
+
+            <!-- Honeypot field - hidden from real users -->
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none;">
+
+            <div class="form-actions">
+              <button type="submit" id="contactSubmit" class="btn btn-primary">Send Message</button>
+              <span class="form-note">Read personally by Bryan — no support team, no auto-replies.</span>
+            </div>
+
+            <p id="contactStatus" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+
+        <div>
+          <div class="boarding-pass">
+            <div class="bp-head">
+              <span class="eyebrow">Direct Line</span>
+              <h3>One inbox, no middle office.</h3>
+            </div>
+
+            <div class="route-strip">
+              <span class="stop">You</span>
+              <span class="route-line">
+                <span class="ferry-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+                    <path d="M3 16h18l-2 4H5z" />
+                    <path d="M6 16V9h12v7" />
+                    <path d="M12 9V4" />
+                    <path d="M9 6h6" />
+                  </svg></span>
+              </span>
+              <span class="stop">Bryan</span>
+            </div>
+
+            <div class="ticket-perf"></div>
+
+            <div class="ticket-row">
+              <span class="t-label">Email</span>
+              <a class="t-value" href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Location</span>
+              <span class="t-value">Tablas, Romblon</span>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Typical reply</span>
+              <span class="t-value">A few days</span>
+            </div>
+          </div>
+
+          <div class="gov-notice">
+            <span class="gov-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M4 21V9l8-5 8 5v12" />
+                <path d="M9 21v-6h6v6" />
+              </svg></span>
+            <div>
+              <span class="eyebrow">Priority Channel</span>
+              <h4>Local government &amp; tourism offices</h4>
+              <p>Representing a municipality or tourism office in Romblon? Mention it in your message — these route
+                straight to Bryan, no queue.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Adventure<span style="color:#FF5A1F;font-style:italic;">.</span></a>
+          <p>A travel companion built specifically for Romblon Province.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Site</h4>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="press.html">Press Kit</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get in Touch</h4>
+          <ul>
+            <li><a href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a></li>
+            <li>Tablas, Romblon, Philippines</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Adventure. Built in Romblon.</span>
+        <span>Made by people who love this province.</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ============================================
+       ✅ SECURE JAVASCRIPT - NO FIREBASE CONFIG!
+       ============================================ -->
+  <script>
+    // ============================================
+    // HEADER SCROLL
+    // ============================================
+    const header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // ============================================
+    // MOBILE NAV TOGGLE
+    // ============================================
+    (function () {
+      const toggle = document.getElementById('navToggle');
+      const links = document.getElementById('navLinks');
+      const overlay = document.getElementById('navOverlay');
+      const body = document.body;
+
+      function closeMenu() {
+        toggle.classList.remove('active');
+        links.classList.remove('active');
+        overlay.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        body.classList.remove('menu-open');
+      }
+
+      function openMenu() {
+        toggle.classList.add('active');
+        links.classList.add('active');
+        overlay.classList.add('active');
+        toggle.setAttribute('aria-expanded', 'true');
+        body.classList.add('menu-open');
+      }
+
+      toggle.addEventListener('click', () => {
+        links.classList.contains('active') ? closeMenu() : openMenu();
+      });
+
+      overlay.addEventListener('click', closeMenu);
+      links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+      window.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 760) closeMenu(); });
+    })();
+
+    // ============================================
+    // ✅ SECURE CONTACT FORM - NO FIREBASE CONFIG!
+    // ============================================
+    (function () {
+      const form = document.getElementById('contactForm');
+      const statusEl = document.getElementById('contactStatus');
+      const submitBtn = document.getElementById('contactSubmit');
+
+      function setStatus(message, isError) {
+        statusEl.textContent = message;
+        statusEl.classList.remove('is-error', 'is-success');
+        if (message) {
+          statusEl.classList.add(isError ? 'is-error' : 'is-success');
+        }
+      }
+
+      // Client-side validation
+      function validateClientSide(name, email, message) {
+        if (!name || !email || !message) {
+          return 'Please fill in your name, email, and message.';
+        }
+        if (name.length < 2 || name.length > 80) {
+          return 'Name must be 2-80 characters.';
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return 'Please enter a valid email address.';
+        }
+        if (message.length < 5 || message.length > 2000) {
+          return 'Message must be 5-2000 characters.';
+        }
+        return null;
+      }
+
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        // Honeypot check - bots fill this, humans don't see it
+        const honeypot = form.querySelector('[name="_honey"]');
+        if (honeypot && honeypot.value) {
+          // Silent fail for bots
+          return;
+        }
+
+        const formData = new FormData(form);
+        const name = (formData.get('name') || '').trim();
+        const email = (formData.get('email') || '').trim();
+        const reason = (formData.get('reason') || '').trim();
+        const message = (formData.get('message') || '').trim();
+
+        // Client-side validation
+        const validationError = validateClientSide(name, email, message);
+        if (validationError) {
+          setStatus(validationError, true);
+          return;
+        }
+
+        // Disable button and show loading state
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending…';
+        setStatus('Sending your message…', false);
+
+        try {
+          // 🔐 Call our secure serverless function (NOT Firebase directly!)
+          const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, reason, message }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            setStatus('Thanks — your message has been sent. Bryan will get back to you soon.', false);
+            form.reset();
+          } else {
+            setStatus(data.error || 'Something went wrong. Please try emailing directly.', true);
+          }
+        } catch (error) {
+          console.error('Contact form error:', error);
+          setStatus('Something went wrong. Please try emailing adventureromblon@yahoo.com directly.', true);
+        } finally {
+          // Re-enable button
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    })();
+  </script>
+
+</body>
+
+</html>

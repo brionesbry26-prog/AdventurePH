@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Press Kit — Adventure</title>
+  <meta name="description" content="Boilerplate, founder bio, and brand assets for press and partners.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/footer.css">
+  <link rel="stylesheet" href="css/header.css">
+
+  <style>
+    :root {
+      --ivory: #FDFBF7;
+      --sand: #F4EFEA;
+      --stone: #EFECE6;
+      --navy: #0B132B;
+      --slate: #1C2541;
+      --orange: #FF5A1F;
+      --orange-deep: #E04800;
+      --gold: #C5A059;
+      --line: rgba(11, 19, 43, 0.10);
+      --shadow: 0 20px 50px -20px rgba(11, 19, 43, 0.22);
+      --serif: 'Cormorant Garamond', serif;
+      --sans: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--sans);
+      background: var(--ivory);
+      color: var(--slate);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body.menu-open {
+      overflow: hidden;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--orange);
+      outline-offset: 3px;
+    }
+
+    /* ============================
+     WRAP — matches index.html
+     ============================ */
+    .wrap {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 0.72rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: var(--orange-deep);
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: var(--serif);
+      font-weight: 500;
+      color: var(--navy);
+      letter-spacing: 0.005em;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 30px;
+      border-radius: 2px;
+      font-family: var(--sans);
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+      color: #fff;
+      box-shadow: 0 14px 30px -10px rgba(224, 72, 0, 0.45);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 20px 40px -12px rgba(224, 72, 0, 0.55);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--navy);
+      border-color: rgba(11, 19, 43, 0.35);
+    }
+
+    .btn-outline:hover {
+      background: var(--navy);
+      color: var(--ivory);
+      border-color: var(--navy);
+      transform: translateY(-3px);
+    }
+
+    .btn-ghost-dark {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(253, 251, 247, 0.35);
+    }
+
+    .btn-ghost-dark:hover {
+      background: rgba(253, 251, 247, 0.1);
+      border-color: var(--gold);
+      transform: translateY(-3px);
+    }
+
+    /* ============================
+     VEIN DIVIDER
+     ============================ */
+    .vein-divider {
+      height: 100px;
+      background: var(--ivory);
+      overflow: hidden;
+    }
+
+    .vein-divider svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ============================
+     SECTION
+     ============================ */
+    section {
+      position: relative;
+    }
+
+    .section-pad {
+      padding: 90px 0;
+    }
+
+    .section-head {
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    .section-head .eyebrow {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .section-head h2 {
+      font-size: clamp(1.8rem, 3.6vw, 2.8rem);
+      line-height: 1.08;
+    }
+
+    .section-head p {
+      margin-top: 16px;
+      color: rgba(28, 37, 65, 0.72);
+      font-size: 0.95rem;
+      max-width: 520px;
+    }
+
+    /* ============================
+     PAGE HERO — no image; plain gradient field
+     with a soft gold glow, same language as
+     about.html / contact.html
+     ============================ */
+    .page-hero {
+      padding: 170px 0 90px;
+      background: linear-gradient(180deg, var(--sand) 0%, var(--ivory) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::after {
+      content: '';
+      position: absolute;
+      top: -22%;
+      right: -8%;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(197, 160, 89, 0.18), transparent 70%);
+    }
+
+    .page-hero .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .page-hero .eyebrow {
+      color: var(--orange-deep);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .page-hero .eyebrow .rule {
+      width: 34px;
+      height: 1.5px;
+      background: var(--gold);
+      display: inline-block;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(2.2rem, 4.6vw, 3.4rem);
+      line-height: 1.08;
+      color: var(--navy);
+      margin-bottom: 16px;
+    }
+
+    .page-hero h1 em {
+      font-style: italic;
+      color: var(--orange-deep);
+    }
+
+    .page-hero .lede {
+      font-size: 1.05rem;
+      color: rgba(28, 37, 65, 0.72);
+      max-width: 520px;
+      font-weight: 400;
+    }
+
+    /* ============================
+     STORY GRID (reused for founder section)
+     ============================ */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 70px;
+      align-items: start;
+    }
+
+    .two-col .eyebrow {
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .two-col h2 {
+      font-size: clamp(1.8rem, 3.2vw, 2.4rem);
+      margin-bottom: 18px;
+    }
+
+    .two-col p {
+      color: rgba(28, 37, 65, 0.72);
+      margin-bottom: 16px;
+      font-size: 0.98rem;
+    }
+
+    .two-col p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* ============================
+     QUOTE CARD (boilerplate)
+     ============================ */
+    .quote-card {
+      background: #fff;
+      border-left: 3px solid var(--gold);
+      border-radius: 0 4px 4px 0;
+      padding: 28px 34px;
+      box-shadow: var(--shadow);
+    }
+
+    .quote-card p {
+      color: rgba(28, 37, 65, 0.78);
+      font-size: 0.98rem;
+      line-height: 1.75;
+    }
+
+    /* ============================
+     FACTS / PILL CARD
+     ============================ */
+    .facts-card {
+      background: #fff;
+      border-radius: 4px;
+      padding: 34px 32px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(197, 160, 89, 0.25);
+    }
+
+    .facts-card>.eyebrow {
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .pill-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      list-style: none;
+    }
+
+    .pill-list li {
+      padding: 9px 20px;
+      border-radius: 20px;
+      background: var(--sand);
+      border: 1px solid var(--line);
+      font-size: 0.83rem;
+      font-weight: 500;
+      color: var(--navy);
+    }
+
+    /* ============================
+     CREDIT GRID (photo credits)
+     ============================ */
+    .credit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .credit-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fff;
+      padding: 20px 22px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 26px -16px rgba(11, 19, 43, 0.16);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .credit-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(197, 160, 89, 0.55);
+      box-shadow: var(--shadow);
+    }
+
+    .credit-name {
+      font-family: var(--serif);
+      font-size: 1.02rem;
+      color: var(--navy);
+      font-weight: 500;
+    }
+
+    .credit-arrow {
+      color: var(--orange-deep);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .credit-note {
+      margin-top: 24px;
+      font-size: 0.88rem;
+      color: rgba(28, 37, 65, 0.6);
+      max-width: 60ch;
+    }
+
+    /* ============================
+     DARK CTA — matches index
+     ============================ */
+    .press-cta {
+      background: var(--navy);
+      color: var(--ivory);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .press-cta::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 70%;
+      height: 160%;
+      background: radial-gradient(circle, rgba(255, 90, 31, 0.14) 0%, transparent 70%);
+    }
+
+    .press-cta .inner {
+      position: relative;
+      z-index: 2;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .press-cta .eyebrow {
+      color: var(--gold);
+    }
+
+    .press-cta h2 {
+      color: #fff;
+      font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+      margin: 12px 0 28px;
+    }
+
+    .press-cta .actions {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ============================
+     RESPONSIVE
+     ============================ */
+    @media (max-width: 980px) {
+      .two-col {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+
+      .credit-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .wrap {
+        padding: 0 24px;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .wrap {
+        padding: 0 20px;
+      }
+
+      .section-pad {
+        padding: 60px 0;
+      }
+
+      .page-hero {
+        padding: 150px 0 70px;
+      }
+
+      .credit-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .wrap {
+        padding: 0 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============================
+     HEADER — dark text from the start since the hero
+     below no longer carries a dark image
+     ============================ -->
+  <header id="siteHeader">
+    <nav>
+      <a href="index.html" class="logo">Adventure<span>.</span></a>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html#top">Home</a></li>
+        <li><a href="index.html#features">Features</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="press.html" class="active">Press</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li class="nav-mobile-cta"><a href="index.html#download" class="btn btn-primary">Get Early Access</a></li>
+      </ul>
+      <div class="nav-cta">
+        <a href="index.html#download" class="btn btn-primary">Get Early Access</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false"
+        aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+    <div class="nav-overlay" id="navOverlay"></div>
+  </header>
+
+  <main>
+
+    <!-- PAGE HERO — plain gradient field, no background photo -->
+    <section class="page-hero">
+      <div class="wrap">
+        <span class="eyebrow"><span class="rule"></span>Press Kit</span>
+        <h1>For journalists, officials, and <em>partners.</em></h1>
+        <p class="lede">Everything you need to cover or reference Adventure accurately — boilerplate copy, founder
+          background, and photo credits.</p>
+      </div>
+    </section>
+
+    <div class="vein-divider" aria-hidden="true">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <rect width="1200" height="120" fill="#FDFBF7"></rect>
+        <path d="M0,60 C150,20 280,95 420,55 C560,15 640,90 800,45 C920,10 1040,75 1200,40" fill="none" stroke="#C5A059"
+          stroke-width="1.4" opacity="0.7"></path>
+        <path d="M0,80 C180,50 320,110 480,75 C620,45 700,105 860,70 C980,45 1080,95 1200,65" fill="none"
+          stroke="#0B132B" stroke-width="0.6" opacity="0.18"></path>
+        <path d="M0,40 C120,65 260,10 400,35 C540,60 660,15 820,38 C960,58 1080,25 1200,48" fill="none" stroke="#D97736"
+          stroke-width="0.7" opacity="0.35"></path>
+      </svg>
+    </div>
+
+
+    <!-- SUMMARY -->
+    <section class="section-pad" style="background:var(--ivory);">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">Summary</span>
+          <h2>About Adventure</h2>
+        </div>
+        <div class="quote-card">
+          <p>Adventure is a mobile travel companion built specifically for Romblon Province, Philippines. It plans
+            multi-island itineraries around real ferry routes and terminals, works offline for weak inter-island signal,
+            and includes Isla, an in-app AI trip assistant. Beyond trip planning, the app features a province-wide
+            events calendar for local fiestas and festivals, a digital
+            travel journal and photo memories album. Adventure is developed independently by Bryan Ronnie Briones, in
+            coordination with local
+            organizations across Romblon, with a long-term vision of expanding province by province toward a unified
+            Philippine tourism and inter-island ferry navigation platform.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOUNDER -->
+    <section class="section-pad" style="background:var(--stone);">
+      <div class="wrap two-col">
+        <div>
+          <span class="eyebrow">Founder</span>
+          <h2>Bryan Ronnie Briones</h2>
+          <p>Bryan is the sole developer behind Adventure. He has a background in Information Systems and a
+            long-standing personal interest in Romblon Province tourism, and has worked on the app's architecture,
+            design, and content — including coordinating with local organizations across the province — independently.
+          </p>
+          <p>He is available for interviews and press inquiries via the contact page.</p>
+        </div>
+        <div class="facts-card">
+          <span class="eyebrow">Quick Facts</span>
+          <ul class="pill-list">
+            <li>Solo Developer</li>
+            <li>Information Systems Background</li>
+            <li>Based in the Philippines</li>
+            <li>Available for Interviews</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHOTO CREDITS -->
+    <section class="section-pad" style="background:var(--sand);">
+      <div class="wrap">
+        <div class="section-head">
+          <span class="eyebrow">With Thanks</span>
+          <h2>Photo Credits &amp; Acknowledgments</h2>
+          <p>Some of the photography featured on this site was generously made available by local Facebook pages
+            covering Romblon Province. Adventure is grateful for their support in helping tell this province's story.
+          </p>
+        </div>
+        <div class="credit-grid">
+          <a class="credit-card" href="https://www.facebook.com/BeautifulTablasIsland" target="_blank" rel="noopener">
+            <span class="credit-name">Tablas Island and Beyond</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="credit-card" href="https://www.facebook.com/profile.php?id=100063880876770" target="_blank"
+            rel="noopener">
+            <span class="credit-name">Romblon Island Explorer</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="credit-card" href="https://www.facebook.com/profile.php?id=100076982260081" target="_blank"
+            rel="noopener">
+            <span class="credit-name">Just Lens</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="credit-card" href="https://www.facebook.com/profile.php?id=61576414104865" target="_blank"
+            rel="noopener">
+            <span class="credit-name">Rochtan in Romblon</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          <a class="credit-card" href="https://www.facebook.com/BeyondLensV" target="_blank" rel="noopener">
+            <span class="credit-name">BeyondLens</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a> <a class="credit-card" href="https://www.facebook.com/PanawJuanVlogs" target="_blank" rel="noopener">
+            <span class="credit-name">PanawJuan</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a> </a> <a class="credit-card" href="https://www.facebook.com/binucotpearlboutique.ph" target="_blank"
+            rel="noopener">
+            <span class="credit-name">Binucot Pearl Boutique Resort</span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a> </a> </a> <a class="credit-card" href="https://www.facebook.com/profile.php?id=61590603137753"
+            target="_blank" rel="noopener">
+            <span class="credit-name">BLAC.
+            </span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a> </a> </a> </a> <a class="credit-card" href="https://www.facebook.com/profile.php?id=61574339678458"
+            target="_blank" rel="noopener">
+            <span class="credit-name">Pahuway Café - Romblon.
+            </span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          </a> </a> </a> </a> <a class="credit-card" href="https://www.facebook.com/profile.php?id=61590316604668"
+            target="_blank" rel="noopener">
+            <span class="credit-name">Romblon Provincial Tourism and Cultural Affairs Office
+            </span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+          </a>
+          </a> </a> </a> </a> <a class="credit-card" href="https://www.facebook.com/starpalacerestaurant"
+            target="_blank" rel="noopener">
+            <span class="credit-name">Star Palace Restaurant & Cafe in Odiongan, Tablas Island, Romblon
+            </span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          
+          </a> </a> </a> </a> </a> <a class="credit-card" href="https://www.facebook.com/wandertwinsofficial"
+            target="_blank" rel="noopener">
+            <span class="credit-name">Wander Twins
+            </span>
+            <span class="credit-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <p class="credit-note">Thank you for allowing Adventure to feature your photos of Romblon — this site wouldn't
+          look the same without your work.</p>
+      </div>
+    </section>
+
+    <!-- DARK CTA -->
+    <section class="press-cta section-pad">
+      <div class="wrap inner">
+        <span class="eyebrow">Press Inquiries</span>
+        <h2>Writing about Adventure or Romblon tourism?</h2>
+        <div class="actions">
+          <a href="contact.html" class="btn btn-primary">Contact for Press</a>
+          <a href="about.html" class="btn btn-ghost-dark">Read the Story →</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER — identical structure to index.html -->
+  <footer>
+    <div class="wrap">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a href="index.html" class="logo">Adventure<span style="color:#FF5A1F;font-style:italic;">.</span></a>
+          <p>A travel companion built specifically for Romblon Province.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Site</h4>
+          <ul>
+            <li><a href="index.html#features">Features</a></li>
+            <li><a href="about.html">About</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="press.html">Press Kit</a></li>
+            <li><a href="contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Get in Touch</h4>
+          <ul>
+            <li><a href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a></li>
+            <li>Tablas, Romblon, Philippines</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Adventure. Built in Romblon.</span>
+        <span>Made by people who love this province.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById('siteHeader');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    (function () {
+      const toggle = document.getElementById('navToggle');
+      const links = document.getElementById('navLinks');
+      const overlay = document.getElementById('navOverlay');
+      const body = document.body;
+
+      function closeMenu() {
+        toggle.classList.remove('active');
+        links.classList.remove('active');
+        overlay.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        body.classList.remove('menu-open');
+      }
+
+      function openMenu() {
+        toggle.classList.add('active');
+        links.classList.add('active');
+        overlay.classList.add('active');
+        toggle.setAttribute('aria-expanded', 'true');
+        body.classList.add('menu-open');
+      }
+
+      toggle.addEventListener('click', () => {
+        links.classList.contains('active') ? closeMenu() : openMenu();
+      });
+
+      overlay.addEventListener('click', closeMenu);
+      links.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+      window.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+      window.addEventListener('resize', () => { if (window.innerWidth > 760) closeMenu(); });
+    })();
+  </script>
+
+</body>
+
+</html>

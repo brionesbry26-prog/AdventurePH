@@ -1,0 +1,237 @@
+/* ============================================================
+   Adventure — Shared Site Header / Nav
+   Canonical layout source: contact.html (also matches about.html
+   and press.html, since none of those pages carry a photo hero
+   behind the header).
+
+   Requires the page to already define these custom properties
+   in its own <style> block (all four pages currently do):
+     --ivory --navy --slate --orange --orange-deep --serif --sans
+
+   NOTE — index.html: its hero is a full-bleed photo behind a
+   transparent header, so it needs extra white-text-on-photo /
+   "scrolled" and "menu-active" color states layered on top of
+   this file. Link this file there too for the shared structure
+   (position, sizing, spacing, mobile menu mechanics), then keep
+   only its color-state overrides in its own <style> block.
+   ============================================================ */
+
+#siteHeader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+#siteHeader.scrolled {
+  background: rgba(253, 251, 247, 0.85);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border-bottom: 1px solid rgba(11, 19, 43, 0.06);
+  box-shadow: 0 10px 30px -20px rgba(11, 19, 43, 0.25);
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  max-width: 1240px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 210;
+}
+
+.logo {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--navy);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.logo span {
+  color: var(--orange);
+  font-style: italic;
+}
+
+.nav-links {
+  display: flex;
+  gap: 32px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.nav-links a {
+  position: relative;
+  color: var(--slate);
+  padding-bottom: 4px;
+  transition: color 0.3s, text-shadow 0.3s;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 1.5px;
+  background: var(--orange);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  width: 100%;
+}
+
+.nav-links a.active {
+  color: var(--orange-deep);
+}
+
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.nav-cta .btn {
+  padding: 10px 22px;
+  font-size: 0.8rem;
+}
+
+.nav-mobile-cta {
+  display: none;
+}
+
+/* Hamburger toggle — hidden on desktop */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 220;
+  position: relative;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--navy);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.nav-toggle.active span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.nav-toggle.active span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 19, 43, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 190;
+}
+
+.nav-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 760px) {
+  .nav-links {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100svh;
+    width: min(78vw, 320px);
+    background: var(--ivory);
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 110px 32px 32px;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(.2, .8, .2, 1);
+    box-shadow: -20px 0 50px -20px rgba(11, 19, 43, 0.3);
+    z-index: 200;
+    display: flex;
+  }
+
+  .nav-links.active {
+    transform: translateX(0);
+  }
+
+  .nav-links a {
+    font-size: 1.05rem;
+    width: 100%;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(11, 19, 43, 0.08);
+  }
+
+  .nav-mobile-cta {
+    display: block;
+    margin-top: 18px;
+    width: 100%;
+    border-bottom: none;
+    padding: 0;
+  }
+
+  .nav-mobile-cta .btn {
+    width: 100%;
+  }
+
+  .nav-mobile-cta a.btn-primary {
+    color: #fff !important;
+  }
+
+  .nav-cta {
+    display: none;
+  }
+
+  .nav-toggle {
+    display: flex;
+  }
+
+  nav {
+    padding: 14px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-links {
+    width: 100vw;
+    padding: 100px 24px 24px;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+  }
+}
