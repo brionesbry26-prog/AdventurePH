@@ -38,6 +38,37 @@ const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX, 10) || 3;
 const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 24 * 60 * 60 * 1000; // 24h
 const RATE_LIMIT_COOLDOWN_MS = parseInt(process.env.RATE_LIMIT_COOLDOWN_MS, 10) || 30 * 1000; // 30s between sends
 
+// ──────────────────────────────────────────────
+// Message content limits — mirrors client-side limits in contact.html.
+// Keep these two files in sync if you change one.
+// ──────────────────────────────────────────────
+const MIN_WORDS = 3;
+const MAX_WORDS = 300;
+const MIN_VALID_WORD_RATIO = 0.6; // at least 60% of words must look "real"
+
+// ──────────────────────────────────────────────
+// Blocklist — profanity / violent / spam-trigger terms across
+// English, Tagalog, and Bisaya. NOT exhaustive — this is a starter
+// list intended as a baseline spam/abuse filter, not full moderation
+// coverage. For production-grade coverage, swap this for a maintained
+// package (e.g. "leo-profanity", "bad-words", or a hosted moderation
+// API) instead of hand-maintaining a word list — and keep this list
+// in sync with the copy in contact.html if you do keep it.
+// ──────────────────────────────────────────────
+const BLOCKLIST = [
+  // english — profanity / slurs / violent threats (starter set)
+  'fuck', 'shit', 'bitch', 'asshole', 'bastard', 'cunt', 'whore',
+  'nigger', 'faggot', 'retard',
+  'kill you', 'kill him', 'kill her', 'i will kill', 'gonna kill',
+  'shoot up', 'shoot you', 'bomb the', 'blow up', 'i have a gun',
+  'rape you', 'terrorist attack',
+  // tagalog — profanity (starter set)
+  'putangina', 'putang ina', 'gago', 'gaga', 'tangina', 'tarantado',
+  'ulol', 'bobo', 'leche', 'punyeta', 'walang hiya',
+  // bisaya / cebuano — profanity (starter set)
+  'yawa', 'buang', 'bilat', 'piste', 'atay', 'animal ka',
+];
+
 function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   if (forwarded) {
@@ -107,40 +138,116 @@ async function checkRateLimit(ip) {
 }
 
 /**
- * Heuristic gibberish/spam-text detector — no dictionary or external API,
- * just pattern checks for keyboard-mashing like "hrgbalhrf alkefawe":
- *  - words with no vowels at all (beyond a short/allowed length)
- *  - words with a long run of consecutive consonants (unusual in real English)
- * If a large share of the message's words look like this, reject it.
+ * Normalizes text for blocklist matching: lowercases, undoes common
+ * leetspeak substitutions (0->o, 1/!->i, 3->e, 4/@->a, 5/$->s), and
+ * strips punctuation so simple obfuscation ("f.u.c.k", "sh1t") doesn't
+ * slip past the filter.
  */
-function looksLikeGibberish(text) {
-  const words = text
-    .trim()
-    .split(/\s+/)
-    .map((w) => w.replace(/[^a-zA-Z]/g, ''))
+function normalizeForBlocklist(text) {
+  return text
+    .toLowerCase()
+    .replace(/[0]/g, 'o')
+    .replace(/[1!]/g, 'i')
+    .replace(/[3]/g, 'e')
+    .replace(/[4@]/g, 'a')
+    .replace(/[5$]/g, 's')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Returns true if the message contains a blocked term — profanity,
+ * violent threats, or common spam trigger phrases. Also checks a
+ * "collapsed" version of the text (spaces between single letters
+ * removed) to catch spaced-out obfuscation like "f u c k".
+ */
+function containsBlockedTerm(text) {
+  const normalized = normalizeForBlocklist(text);
+  const collapsed = normalized.replace(/\b(\w)\s+(?=\w\b)/g, '$1');
+
+  for (const term of BLOCKLIST) {
+    if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Per-word "looks like a real word" check — language-agnostic.
+ * English, Tagalog, and Bisaya are all Latin-alphabet, vowel-rich
+ * languages: real words rarely go 5+ consonants in a row, contain zero
+ * vowels, or repeat the same character 4+ times in a row. Each word is
+ * judged individually; the message needs a real majority of
+ * individually-valid words to pass — not just a good average.
+ *
+ * Also enforces word-count bounds and runs the blocklist check first,
+ * since a blocked term is an instant reject regardless of word shape.
+ *
+ * Returns { ok: true, wordCount } or { ok: false, reason, wordCount? }
+ * where reason is one of: 'blocked' | 'too_short' | 'too_long' | 'gibberish'.
+ */
+function analyzeMessage(rawText) {
+  const text = (rawText || '').trim();
+
+  if (containsBlockedTerm(text)) {
+    return { ok: false, reason: 'blocked' };
+  }
+
+  const rawWords = text.split(/\s+/).filter(Boolean);
+  const words = rawWords
+    .map((w) => w.replace(/[^a-zA-Z'-]/g, ''))
     .filter((w) => w.length > 0);
 
-  if (words.length === 0) return true;
+  if (words.length < MIN_WORDS) {
+    return { ok: false, reason: 'too_short', wordCount: words.length };
+  }
+  if (words.length > MAX_WORDS) {
+    return { ok: false, reason: 'too_long', wordCount: words.length };
+  }
 
-  let suspicious = 0;
-  let checkable = 0;
+  let validCount = 0;
+  let judged = 0;
 
   for (const word of words) {
-    if (word.length < 3) continue; // too short to judge (e.g. "hi", "ok", "a")
-    checkable++;
+    if (word.length < 2) continue; // too short to judge (e.g. "a", "i", "sa")
+    judged++;
 
     const hasVowel = /[aeiouAEIOU]/.test(word);
-    const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word); // 5+ consonants in a row
+    const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word);
+    const repeatedChar = /(.)\1{3,}/.test(word); // "aaaa", "kkkk"
 
-    if (!hasVowel || longConsonantRun) {
-      suspicious++;
+    if (hasVowel && !longConsonantRun && !repeatedChar) {
+      validCount++;
     }
   }
 
-  // Not enough real content to judge either way — let it through
-  if (checkable === 0) return false;
+  // Not enough judgeable words (e.g. message is all 1-letter tokens) — treat as gibberish
+  if (judged === 0) {
+    return { ok: false, reason: 'gibberish', wordCount: words.length };
+  }
 
-  return suspicious / checkable > 0.4; // more than 40% of words look like keyboard mashing
+  const ratio = validCount / judged;
+  if (ratio < MIN_VALID_WORD_RATIO) {
+    return { ok: false, reason: 'gibberish', wordCount: words.length, ratio };
+  }
+
+  return { ok: true, wordCount: words.length };
+}
+
+function errorMessageForAnalysis(analysis) {
+  switch (analysis.reason) {
+    case 'blocked':
+      return "That message can't be sent — please remove any offensive or threatening language.";
+    case 'too_short':
+      return `Please write at least ${MIN_WORDS} real words.`;
+    case 'too_long':
+      return `Please keep your message under ${MAX_WORDS} words.`;
+    case 'gibberish':
+    default:
+      return 'Your message doesn\'t look like readable text — please rewrite it so Bryan can understand what you need.';
+  }
 }
 
 export default async function handler(req, res) {
@@ -185,11 +292,18 @@ export default async function handler(req, res) {
       });
     }
 
-    // Reject keyboard-mashing / gibberish messages
-    if (looksLikeGibberish(message)) {
+    // Name/email fields also run through the blocklist — a slur in the
+    // name field is just as much abuse as one in the message.
+    if (containsBlockedTerm(name) || containsBlockedTerm(reason || '')) {
       return res.status(400).json({
-        error: 'Your message doesn\'t look like readable text — please rewrite it so Bryan can understand what you need.',
+        error: "That submission can't be sent — please remove any offensive or threatening language.",
       });
+    }
+
+    // Word-count bounds + per-word gibberish check + blocklist on the message
+    const analysis = analyzeMessage(message);
+    if (!analysis.ok) {
+      return res.status(400).json({ error: errorMessageForAnalysis(analysis) });
     }
 
     // ──────────────────────────────────────────────
