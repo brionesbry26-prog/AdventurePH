@@ -3,11 +3,8 @@ import admin from 'firebase-admin';
 
 // ──────────────────────────────────────────────
 // Initialize Firebase Admin SDK (server-side only)
-// This is now defensive: if credentials are missing or malformed,
-// `db` stays undefined instead of crashing the whole function on
-// every request. The Firestore write later checks for `db` before
-// using it, so email delivery still works even if Firebase is down
-// or misconfigured.
+// Defensive: if credentials are missing/malformed, `db` stays
+// undefined instead of crashing the whole function on every request.
 // ──────────────────────────────────────────────
 let db;
 
@@ -34,18 +31,128 @@ if (admin.apps.length) {
   }
 }
 
+// ──────────────────────────────────────────────
+// Rate limit config (from .env, with sane fallbacks)
+// ──────────────────────────────────────────────
+const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX, 10) || 3;
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 24 * 60 * 60 * 1000; // 24h
+const RATE_LIMIT_COOLDOWN_MS = parseInt(process.env.RATE_LIMIT_COOLDOWN_MS, 10) || 30 * 1000; // 30s between sends
+
+function getClientIp(req) {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    // x-forwarded-for can be a comma-separated list; the first entry is the original client
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || 'unknown';
+}
+
+function sanitizeForDocId(str) {
+  // Firestore doc IDs can't contain '/', and we want something filesystem/URL-safe
+  return str.replace(/[^a-zA-Z0-9_.-]/g, '_');
+}
+
+/**
+ * Checks whether an IP has exceeded its message quota.
+ * Returns { allowed: true } or { allowed: false, error: '...' }.
+ * If Firestore isn't available, rate limiting is skipped (logged, not enforced) —
+ * serverless functions don't reliably share memory across invocations, so
+ * without a persistent store there's nowhere safe to count from.
+ */
+async function checkRateLimit(ip) {
+  if (!db) {
+    console.warn('⚠️ Skipping rate limit check — Firestore not available.');
+    return { allowed: true };
+  }
+
+  const docId = sanitizeForDocId(ip);
+  const ref = db.collection('rate_limits').doc(docId);
+
+  try {
+    const snap = await ref.get();
+    const now = Date.now();
+    const existing = (snap.exists && snap.data().timestamps) || [];
+
+    // Keep only timestamps still inside the rolling window
+    const recent = existing.filter((ts) => now - ts < RATE_LIMIT_WINDOW_MS);
+
+    if (recent.length > 0) {
+      const lastSent = Math.max(...recent);
+      if (now - lastSent < RATE_LIMIT_COOLDOWN_MS) {
+        const waitSeconds = Math.ceil((RATE_LIMIT_COOLDOWN_MS - (now - lastSent)) / 1000);
+        return {
+          allowed: false,
+          error: `Please wait ${waitSeconds}s before sending another message.`,
+        };
+      }
+    }
+
+    if (recent.length >= RATE_LIMIT_MAX) {
+      return {
+        allowed: false,
+        error: `You've reached the limit of ${RATE_LIMIT_MAX} messages per day. Please try again tomorrow, or email adventureromblon@yahoo.com directly.`,
+      };
+    }
+
+    // Record this attempt (store only the trimmed, recent list so the doc never grows unbounded)
+    recent.push(now);
+    await ref.set({ timestamps: recent }, { merge: false });
+
+    return { allowed: true };
+  } catch (error) {
+    console.error('❌ Rate limit check error:', error);
+    // Fail open — a rate-limit bug shouldn't block legitimate messages
+    return { allowed: true };
+  }
+}
+
+/**
+ * Heuristic gibberish/spam-text detector — no dictionary or external API,
+ * just pattern checks for keyboard-mashing like "hrgbalhrf alkefawe":
+ *  - words with no vowels at all (beyond a short/allowed length)
+ *  - words with a long run of consecutive consonants (unusual in real English)
+ * If a large share of the message's words look like this, reject it.
+ */
+function looksLikeGibberish(text) {
+  const words = text
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-zA-Z]/g, ''))
+    .filter((w) => w.length > 0);
+
+  if (words.length === 0) return true;
+
+  let suspicious = 0;
+  let checkable = 0;
+
+  for (const word of words) {
+    if (word.length < 3) continue; // too short to judge (e.g. "hi", "ok", "a")
+    checkable++;
+
+    const hasVowel = /[aeiouAEIOU]/.test(word);
+    const longConsonantRun = /[^aeiouAEIOU]{5,}/.test(word); // 5+ consonants in a row
+
+    if (!hasVowel || longConsonantRun) {
+      suspicious++;
+    }
+  }
+
+  // Not enough real content to judge either way — let it through
+  if (checkable === 0) return false;
+
+  return suspicious / checkable > 0.4; // more than 40% of words look like keyboard mashing
+}
+
 export default async function handler(req, res) {
   // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -60,31 +167,43 @@ export default async function handler(req, res) {
       });
     }
 
-    // Validate name
     if (name.length < 2 || name.length > 80) {
       return res.status(400).json({
         error: 'Name must be 2-80 characters.',
       });
     }
 
-    // Validate email format
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({
         error: 'Please enter a valid email address.',
       });
     }
 
-    // Validate message
     if (message.length < 5 || message.length > 2000) {
       return res.status(400).json({
         error: 'Message must be 5-2000 characters.',
       });
     }
 
+    // Reject keyboard-mashing / gibberish messages
+    if (looksLikeGibberish(message)) {
+      return res.status(400).json({
+        error: 'Your message doesn\'t look like readable text — please rewrite it so Bryan can understand what you need.',
+      });
+    }
+
     // ──────────────────────────────────────────────
+    // Rate limit: max N messages per IP per day, plus a short cooldown
+    // between individual sends. Checked after validation so obviously
+    // broken submissions don't burn a person's daily quota.
+    // ──────────────────────────────────────────────
+    const clientIp = getClientIp(req);
+    const rateLimitResult = await checkRateLimit(clientIp);
+    if (!rateLimitResult.allowed) {
+      return res.status(429).json({ error: rateLimitResult.error });
+    }
+
     // 1️⃣ Save to Firestore (for admin panel)
-    // Only runs if Firebase Admin actually initialized successfully.
-    // ──────────────────────────────────────────────
     if (db) {
       try {
         await db.collection('contact_messages').add({
@@ -94,21 +213,18 @@ export default async function handler(req, res) {
           message: message.trim(),
           status: 'new',
           source: 'website_contact_form',
+          ip: clientIp,
           created_at: admin.firestore.FieldValue.serverTimestamp(),
         });
         console.log('✅ Message saved to Firestore');
       } catch (firestoreError) {
         console.error('❌ Firestore write error:', firestoreError);
-        // Don't fail the whole request if Firestore fails
-        // The email notification is more important for the user
       }
     } else {
       console.warn('⚠️ Skipping Firestore save — Firebase Admin was not initialized.');
     }
 
-    // ──────────────────────────────────────────────
     // 2️⃣ Send email notification via FormSubmit
-    // ──────────────────────────────────────────────
     try {
       const formSubmitResponse = await fetch(
         process.env.FORM_SUBMIT_ENDPOINT ||
@@ -133,18 +249,14 @@ export default async function handler(req, res) {
 
       if (!formSubmitResponse.ok) {
         console.error('❌ FormSubmit error:', await formSubmitResponse.text());
-        // Don't fail if email fails - the data may already be in Firestore
       } else {
         console.log('✅ Email notification sent');
       }
     } catch (emailError) {
       console.error('❌ Email error:', emailError);
-      // Don't fail the whole request
     }
 
-    // ──────────────────────────────────────────────
     // 3️⃣ Return success response
-    // ──────────────────────────────────────────────
     return res.status(200).json({
       success: true,
       message: 'Thanks — your message has been sent. Bryan will get back to you soon.',
