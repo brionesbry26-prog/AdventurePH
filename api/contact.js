@@ -9,6 +9,20 @@ import admin from 'firebase-admin';
 let db;
 
 if (!admin.apps.length) {
+  const missingEnvVars = ['FIREBASE_PROJECT_ID', 'FIREBASE_CLIENT_EMAIL', 'FIREBASE_PRIVATE_KEY']
+    .filter((key) => !process.env[key]);
+
+  if (missingEnvVars.length > 0) {
+    // This is almost always why rate limiting silently does nothing in
+    // production: without these three set on the host (Vercel/etc,
+    // for BOTH Production and Preview environments), `db` stays
+    // undefined below and every rate-limit check fails open.
+    console.error(
+      `❌ Firebase env vars missing: ${missingEnvVars.join(', ')}. ` +
+      'Rate limiting (per-IP and per-email) will be DISABLED until these are set and the app is redeployed.'
+    );
+  }
+
   try {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -19,7 +33,7 @@ if (!admin.apps.length) {
     });
     console.log('✅ Firebase Admin initialized successfully');
   } catch (error) {
-    console.error('❌ Firebase Admin initialization error:', error);
+    console.error('❌ Firebase Admin initialization error — rate limiting will be DISABLED:', error);
   }
 }
 
@@ -27,9 +41,15 @@ if (admin.apps.length) {
   try {
     db = admin.firestore();
   } catch (error) {
-    console.error('❌ Firestore client error:', error);
+    console.error('❌ Firestore client error — rate limiting will be DISABLED:', error);
   }
 }
+
+// If true, requests are REJECTED when Firestore is unreachable instead
+// of being let through. Off by default (fail-open) so a database outage
+// doesn't take down your contact form entirely — flip this on if you'd
+// rather block all messages than risk unlimited spam getting through.
+const RATE_LIMIT_FAIL_CLOSED = process.env.RATE_LIMIT_FAIL_CLOSED === 'true';
 
 // ──────────────────────────────────────────────
 // Rate limit config (from .env, with sane fallbacks)
@@ -63,10 +83,13 @@ const BLOCKLIST = [
   'shoot up', 'shoot you', 'bomb the', 'blow up', 'i have a gun',
   'rape you', 'terrorist attack',
   // tagalog — profanity (starter set)
-  'putangina', 'putang ina', 'gago', 'gaga', 'tangina', 'tarantado',
-  'ulol', 'bobo', 'leche', 'punyeta', 'walang hiya',
+  'puta', 'pota', 'putax', 'putangina', 'putang ina', 'putanginamo',
+  'gago', 'gaga', 'tangina', 'tang ina', 'tarantado', 'ulol', 'bobo',
+  'leche', 'punyeta', 'walang hiya', 'lintik', 'bwisit', 'buwisit',
+  'hayop ka', 'siraulo', 'inutil',
   // bisaya / cebuano — profanity (starter set)
-  'yawa', 'buang', 'bilat', 'piste', 'atay', 'animal ka',
+  'yawa', 'buang', 'bilat', 'piste', 'pisti', 'atay', 'animal ka',
+  'pesteng yawa', 'baboy ka', 'ilo ka',
 ];
 
 function getClientIp(req) {
@@ -108,7 +131,11 @@ function normalizeEmailForRateLimit(email) {
  */
 async function checkRateLimitForKey(key, collection, label) {
   if (!db) {
-    console.warn(`⚠️ Skipping ${label} rate limit check — Firestore not available.`);
+    if (RATE_LIMIT_FAIL_CLOSED) {
+      console.error(`❌ Rejecting request — ${label} rate limit can't be checked (Firestore unavailable) and RATE_LIMIT_FAIL_CLOSED is on.`);
+      return { allowed: false, error: 'Message sending is temporarily unavailable. Please try emailing adventureromblon@yahoo.com directly.' };
+    }
+    console.warn(`⚠️ Skipping ${label} rate limit check — Firestore not available. (This message is NOT being counted or limited.)`);
     return { allowed: true };
   }
 
@@ -147,6 +174,7 @@ async function checkRateLimitForKey(key, collection, label) {
     recent.push(now);
     await ref.set({ timestamps: recent }, { merge: false });
 
+    console.log(`✅ ${label} rate limit OK for "${key}" — ${recent.length}/${RATE_LIMIT_MAX} used today.`);
     return { allowed: true };
   } catch (error) {
     console.error(`❌ Rate limit check error (${label}):`, error);
@@ -167,7 +195,7 @@ async function checkRateLimitByEmail(email) {
 
 /**
  * Normalizes text for blocklist matching: lowercases, undoes common
- * leetspeak substitutions (0->o, 1/!->i, 3->e, 4/@->a, 5/$->s), and
+ * leetspeak substitutions (0->o, 1->i, 3->e, 4/@->a, 5/$->s), and
  * strips punctuation so simple obfuscation ("f.u.c.k", "sh1t") doesn't
  * slip past the filter.
  */
@@ -175,7 +203,7 @@ function normalizeForBlocklist(text) {
   return text
     .toLowerCase()
     .replace(/[0]/g, 'o')
-    .replace(/[1!]/g, 'i')
+    .replace(/1/g, 'i')
     .replace(/[3]/g, 'e')
     .replace(/[4@]/g, 'a')
     .replace(/[5$]/g, 's')
@@ -184,19 +212,41 @@ function normalizeForBlocklist(text) {
     .trim();
 }
 
+function escapeRegExp(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * Returns true if the message contains a blocked term — profanity,
- * violent threats, or common spam trigger phrases. Also checks a
- * "collapsed" version of the text (spaces between single letters
- * removed) to catch spaced-out obfuscation like "f u c k".
+ * violent threats, or common spam trigger phrases.
+ *
+ * Single-word terms (no space) are matched with word boundaries
+ * (\bterm\b), NOT a raw substring — a plain .includes('puta') would
+ * also match "computation" (com-PUTA-tion), which is a real false
+ * positive risk for short profanity words. Word boundaries mean the
+ * term has to stand on its own, so "pota ka" and "putanginamo" still
+ * match (the term sits at a real word edge) but "computation" doesn't.
+ *
+ * Multi-word phrases (contain a space) are matched by substring on the
+ * normalized text, since they're specific enough not to false-positive.
+ *
+ * Also checks a "collapsed" version of the text (spaces between single
+ * letters removed) to catch spaced-out obfuscation like "p u t a".
  */
 function containsBlockedTerm(text) {
   const normalized = normalizeForBlocklist(text);
   const collapsed = normalized.replace(/\b(\w)\s+(?=\w\b)/g, '$1');
 
   for (const term of BLOCKLIST) {
-    if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
-      return true;
+    if (term.includes(' ')) {
+      if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
+        return true;
+      }
+    } else {
+      const boundaryRegex = new RegExp(`\\b${escapeRegExp(term)}\\b`);
+      if (boundaryRegex.test(normalized) || boundaryRegex.test(collapsed)) {
+        return true;
+      }
     }
   }
   return false;
