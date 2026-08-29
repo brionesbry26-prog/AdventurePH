@@ -1020,17 +1020,20 @@
         'shoot up', 'shoot you', 'bomb the', 'blow up', 'i have a gun',
         'rape you', 'terrorist attack',
         // tagalog — profanity (starter set)
-        'putangina', 'putang ina', 'gago', 'gaga', 'tangina', 'tarantado',
-        'ulol', 'bobo', 'leche', 'punyeta', 'walang hiya',
+        'puta', 'pota', 'putax', 'putangina', 'putang ina', 'putanginamo',
+        'gago', 'gaga', 'tangina', 'tang ina', 'tarantado', 'ulol', 'bobo',
+        'leche', 'punyeta', 'walang hiya', 'lintik', 'bwisit', 'buwisit',
+        'hayop ka', 'siraulo', 'inutil',
         // bisaya / cebuano — profanity (starter set)
-        'yawa', 'buang', 'bilat', 'piste', 'atay', 'animal ka',
+        'yawa', 'buang', 'bilat', 'piste', 'pisti', 'atay', 'animal ka',
+        'pesteng yawa', 'baboy ka', 'ilo ka',
       ];
 
       function normalizeForBlocklist(text) {
         return text
           .toLowerCase()
           .replace(/[0]/g, 'o')
-          .replace(/[1!]/g, 'i')
+          .replace(/1/g, 'i')
           .replace(/[3]/g, 'e')
           .replace(/[4@]/g, 'a')
           .replace(/[5$]/g, 's')
@@ -1039,13 +1042,29 @@
           .trim();
       }
 
+      function escapeRegExp(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      }
+
+      // Single-word terms use \bterm\b (word boundaries), not a raw
+      // substring — a plain .includes('puta') would also match
+      // "computation" (com-PUTA-tion). Multi-word phrases still use
+      // substring matching since they're specific enough not to
+      // false-positive.
       function containsBlockedTerm(text) {
         const normalized = normalizeForBlocklist(text);
         // also collapse spaced-out letters like "f u c k" -> "fuck" for a second pass
         const collapsed = normalized.replace(/\b(\w)\s+(?=\w\b)/g, '$1');
         for (const term of BLOCKLIST) {
-          if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
-            return true;
+          if (term.includes(' ')) {
+            if (normalized.includes(term) || collapsed.includes(term.replace(/\s+/g, ''))) {
+              return true;
+            }
+          } else {
+            const boundaryRegex = new RegExp(`\\b${escapeRegExp(term)}\\b`);
+            if (boundaryRegex.test(normalized) || boundaryRegex.test(collapsed)) {
+              return true;
+            }
           }
         }
         return false;
