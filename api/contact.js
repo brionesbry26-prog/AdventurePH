@@ -84,20 +84,36 @@ function sanitizeForDocId(str) {
 }
 
 /**
- * Checks whether an IP has exceeded its message quota.
+ * Normalizes an email for use as a rate-limit key: lowercased and
+ * trimmed, so "Bob@Gmail.com" and "bob@gmail.com " count as the same
+ * sender. This intentionally does NOT try to canonicalize Gmail's
+ * dot/plus-addressing tricks (bob.smith+x@gmail.com vs bobsmith@gmail.com)
+ * — that's a deeper anti-abuse feature, not a quick add.
+ */
+function normalizeEmailForRateLimit(email) {
+  return (email || '').trim().toLowerCase();
+}
+
+/**
+ * Checks whether a given key (an IP address, or an email address) has
+ * exceeded its message quota within the rolling window, and enforces a
+ * short cooldown between individual sends from that same key.
+ * `collection` keeps IP-based and email-based counters in separate
+ * Firestore collections so a shared IP (e.g. an office network) doesn't
+ * interfere with per-email counting and vice versa.
  * Returns { allowed: true } or { allowed: false, error: '...' }.
  * If Firestore isn't available, rate limiting is skipped (logged, not enforced) —
  * serverless functions don't reliably share memory across invocations, so
  * without a persistent store there's nowhere safe to count from.
  */
-async function checkRateLimit(ip) {
+async function checkRateLimitForKey(key, collection, label) {
   if (!db) {
-    console.warn('⚠️ Skipping rate limit check — Firestore not available.');
+    console.warn(`⚠️ Skipping ${label} rate limit check — Firestore not available.`);
     return { allowed: true };
   }
 
-  const docId = sanitizeForDocId(ip);
-  const ref = db.collection('rate_limits').doc(docId);
+  const docId = sanitizeForDocId(key);
+  const ref = db.collection(collection).doc(docId);
 
   try {
     const snap = await ref.get();
@@ -121,7 +137,9 @@ async function checkRateLimit(ip) {
     if (recent.length >= RATE_LIMIT_MAX) {
       return {
         allowed: false,
-        error: `You've reached the limit of ${RATE_LIMIT_MAX} messages per day. Please try again tomorrow, or email adventureromblon@yahoo.com directly.`,
+        error: label === 'email'
+          ? `This email address has reached the limit of ${RATE_LIMIT_MAX} messages per day. Please try again tomorrow, or email adventureromblon@yahoo.com directly.`
+          : `You've reached the limit of ${RATE_LIMIT_MAX} messages per day. Please try again tomorrow, or email adventureromblon@yahoo.com directly.`,
       };
     }
 
@@ -131,10 +149,20 @@ async function checkRateLimit(ip) {
 
     return { allowed: true };
   } catch (error) {
-    console.error('❌ Rate limit check error:', error);
+    console.error(`❌ Rate limit check error (${label}):`, error);
     // Fail open — a rate-limit bug shouldn't block legitimate messages
     return { allowed: true };
   }
+}
+
+/** Per-IP limit: max RATE_LIMIT_MAX messages/day from the same IP address. */
+async function checkRateLimitByIp(ip) {
+  return checkRateLimitForKey(ip, 'rate_limits', 'ip');
+}
+
+/** Per-email limit: max RATE_LIMIT_MAX messages/day from the same email address. */
+async function checkRateLimitByEmail(email) {
+  return checkRateLimitForKey(normalizeEmailForRateLimit(email), 'rate_limits_email', 'email');
 }
 
 /**
@@ -307,14 +335,25 @@ export default async function handler(req, res) {
     }
 
     // ──────────────────────────────────────────────
-    // Rate limit: max N messages per IP per day, plus a short cooldown
-    // between individual sends. Checked after validation so obviously
-    // broken submissions don't burn a person's daily quota.
+    // Rate limit: max RATE_LIMIT_MAX messages per day, enforced BOTH
+    // per IP address and per email address, plus a short cooldown
+    // between individual sends on each. Two separate limits close two
+    // separate bypasses: per-IP alone lets someone burn a shared IP's
+    // quota with different email addresses, and per-email alone lets
+    // someone burn one IP's quota with throwaway email addresses.
+    // Checked after content validation so obviously broken submissions
+    // don't burn a person's daily quota.
     // ──────────────────────────────────────────────
     const clientIp = getClientIp(req);
-    const rateLimitResult = await checkRateLimit(clientIp);
-    if (!rateLimitResult.allowed) {
-      return res.status(429).json({ error: rateLimitResult.error });
+
+    const ipRateLimitResult = await checkRateLimitByIp(clientIp);
+    if (!ipRateLimitResult.allowed) {
+      return res.status(429).json({ error: ipRateLimitResult.error });
+    }
+
+    const emailRateLimitResult = await checkRateLimitByEmail(email);
+    if (!emailRateLimitResult.allowed) {
+      return res.status(429).json({ error: emailRateLimitResult.error });
     }
 
     // 1️⃣ Save to Firestore (for admin panel)
