@@ -981,6 +981,7 @@
       const form = document.getElementById('contactForm');
       const statusEl = document.getElementById('contactStatus');
       const submitBtn = document.getElementById('contactSubmit');
+      const emailEl = document.getElementById('email');
       const messageEl = document.getElementById('message');
       const messageHintEl = document.getElementById('messageHint');
       const messageHintTextEl = document.getElementById('messageHintText');
@@ -993,6 +994,82 @@
           statusEl.classList.add(isError ? 'is-error' : 'is-success');
         }
       }
+
+      // ----------------------------------------------------------
+      // Client-side "already sent 3 today" memory, per email address.
+      // This is a courtesy UI layer, NOT the real limit — it lives in
+      // localStorage, so it's scoped to this browser and can be cleared
+      // by the user. The actual enforcement is server-side in
+      // api/contact.js (per-IP and per-email, can't be bypassed by
+      // clearing browser storage). This layer exists purely so someone
+      // who already sent 3 messages from this browser doesn't see a
+      // "Send Message" button that's just going to be rejected anyway —
+      // it hides the button and explains why, before they even try.
+      // ----------------------------------------------------------
+      const EMAIL_LIMIT_STORAGE_PREFIX = 'adventure_contact_sent::';
+      const CLIENT_EMAIL_LIMIT_MAX = 3; // mirrors RATE_LIMIT_MAX in api/contact.js
+      const CLIENT_EMAIL_LIMIT_WINDOW_MS = 24 * 60 * 60 * 1000; // mirrors RATE_LIMIT_WINDOW_MS
+
+      function normalizeEmailKey(email) {
+        return (email || '').trim().toLowerCase();
+      }
+
+      function getSentTimestamps(email) {
+        const key = EMAIL_LIMIT_STORAGE_PREFIX + normalizeEmailKey(email);
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (!Array.isArray(parsed)) return [];
+          const now = Date.now();
+          return parsed.filter((ts) => typeof ts === 'number' && now - ts < CLIENT_EMAIL_LIMIT_WINDOW_MS);
+        } catch (e) {
+          return []; // localStorage unavailable (private browsing, etc.) — just skip this UI layer
+        }
+      }
+
+      function recordSentEmail(email) {
+        const key = EMAIL_LIMIT_STORAGE_PREFIX + normalizeEmailKey(email);
+        const timestamps = getSentTimestamps(email);
+        timestamps.push(Date.now());
+        try {
+          localStorage.setItem(key, JSON.stringify(timestamps));
+        } catch (e) {
+          // Storage unavailable — no harm done, the server still enforces the real limit
+        }
+      }
+
+      function emailHasReachedLimit(email) {
+        if (!email) return false;
+        return getSentTimestamps(email).length >= CLIENT_EMAIL_LIMIT_MAX;
+      }
+
+      // Hides the Send button and explains why, if the currently-typed
+      // email has already hit its daily send count on this browser.
+      // Returns true if the limit is showing (so callers can bail early).
+      function updateEmailLimitUI() {
+        const email = emailEl.value.trim();
+        if (email && emailHasReachedLimit(email)) {
+          submitBtn.style.display = 'none';
+          setStatus(
+            `This email address has already sent ${CLIENT_EMAIL_LIMIT_MAX} messages today. Please try again tomorrow, or email adventureromblon@yahoo.com directly.`,
+            true
+          );
+          return true;
+        }
+        submitBtn.style.display = '';
+        return false;
+      }
+
+      let emailCheckTimer = null;
+      emailEl.addEventListener('input', () => {
+        clearTimeout(emailCheckTimer);
+        emailCheckTimer = setTimeout(updateEmailLimitUI, 250);
+      });
+      emailEl.addEventListener('blur', updateEmailLimitUI);
+
+      // Catch a pre-filled/autofilled email address on page load too
+      updateEmailLimitUI();
 
       // ----------------------------------------------------------
       // Word / message limits — mirrors the server-side limits in
@@ -1232,6 +1309,11 @@
         const reason = (formData.get('reason') || '').trim();
         const message = (formData.get('message') || '').trim();
 
+        // Same-email daily limit (courtesy check — server enforces the real one)
+        if (updateEmailLimitUI()) {
+          return;
+        }
+
         // Client-side validation
         const validationError = validateClientSide(name, email, message);
         if (validationError) {
@@ -1257,11 +1339,19 @@
           const data = await response.json();
 
           if (response.ok && data.success) {
+            recordSentEmail(email);
+            const reachedLimitNow = emailHasReachedLimit(email);
             setStatus('Thanks — your message has been sent. Bryan will get back to you soon.', false);
             form.reset();
             messageHintTextEl.textContent = '';
             messageHintEl.classList.remove('is-warning');
             messageWordCountEl.textContent = '';
+            // If that was this email's 3rd send today, hide the button now
+            // (without touching the success message we just set) — it'll
+            // reappear if they type a different email address.
+            if (reachedLimitNow) {
+              submitBtn.style.display = 'none';
+            }
           } else {
             setStatus(data.error || 'Something went wrong. Please try emailing directly.', true);
           }
