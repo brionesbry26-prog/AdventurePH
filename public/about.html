@@ -92,7 +92,7 @@
     .glance-item strong { display: block; font-family: var(--serif); font-size: 1.25rem; font-weight: 500; color: var(--navy); margin-bottom: 5px; }
     .glance-item span { font-size: 0.88rem; color: rgba(28, 37, 65, 0.65); }
 
-    /* WHERE THIS IS HEADED — centered */
+    /* SUGGEST A SPOT — centered (replaces the old "Where This Is Headed" content) */
     .islands-section { background: var(--stone); }
     .headed-inner {
       max-width: 640px;
@@ -105,6 +105,8 @@
     .headed-inner .eyebrow { display: block; margin-bottom: 12px; }
     .headed-inner h2 { font-size: clamp(1.8rem, 3.2vw, 2.4rem); margin-bottom: 18px; }
     .headed-inner p { color: rgba(28, 37, 65, 0.72); font-size: 0.98rem; margin-bottom: 28px; max-width: 52ch; }
+    .headed-inner .headed-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 28px; }
+    .headed-inner .headed-tags span { padding: 8px 18px; border-radius: 20px; background: #fff; border: 1px solid var(--line); font-size: 0.82rem; font-weight: 500; color: var(--navy); }
 
     .about-cta { background: var(--navy); color: var(--ivory); text-align: center; position: relative; overflow: hidden; }
     .about-cta::before { content: ''; position: absolute; top: -30%; left: 50%; transform: translateX(-50%); width: 70%; height: 160%; background: radial-gradient(circle, rgba(255, 90, 31, 0.14) 0%, transparent 70%); }
@@ -213,13 +215,18 @@
     <section class="islands-section section-pad">
       <div class="wrap">
         <div class="headed-inner">
-          <span class="eyebrow">Where This Is Headed</span>
-          <h2>A tool for the province, not just its visitors.</h2>
-          <p>Beyond trip planning, Adventure is being developed with an eye toward supporting Romblon's tourism more
-            broadly — in conversation with local government and community organizations who know the province best. If
-            you represent a municipality, tourism office, or local organization in Romblon, we'd welcome the
-            conversation.</p>
-          <a href="index.html#contact" class="btn btn-primary">Get in Touch →</a>
+          <span class="eyebrow">Suggest a Spot</span>
+          <h2>You know Romblon better than any map does.</h2>
+          <p>Adventure grows one submission at a time. A hidden beach, a marble workshop, a favorite local eatery, a
+            fiesta date we haven't listed yet — if it belongs in Romblon's story, we want to hear about it. Every spot
+            on the map got there because someone who actually knows the province pointed it out.</p>
+          <div class="headed-tags">
+            <span>Beaches &amp; coves</span>
+            <span>Food &amp; cafés</span>
+            <span>Fiestas &amp; events</span>
+            <span>Local businesses</span>
+          </div>
+          <a href="index.html#contact" class="btn btn-primary">Suggest a Spot →</a>
         </div>
       </div>
     </section>
