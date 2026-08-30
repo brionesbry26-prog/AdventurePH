@@ -441,7 +441,7 @@
       justify-content: center;
       gap: 16px;
       flex-wrap: wrap;
-      margin-bottom: 32px;
+      margin-bottom: 14px;
       width: 100%;
     }
 
@@ -454,6 +454,81 @@
       background: #fff;
       color: #0B132B;
       border-color: #fff;
+    }
+
+    /* availability notice — sits under the hero CTA buttons */
+    .hero-availability {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.82);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-availability .platform-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+
+    .hero-availability .platform-badge svg {
+      width: 11px;
+      height: 11px;
+      color: #FF5A1F;
+      flex-shrink: 0;
+    }
+
+    /* access-explainer line — clarifies what "Get Early Access" actually does */
+    .hero-access-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      font-size: 0.76rem;
+      color: rgba(255, 255, 255, 0.78);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-access-note svg {
+      width: 13px;
+      height: 13px;
+      color: #FF5A1F;
+      flex-shrink: 0;
+    }
+
+    /* suggest-a-spot inline link, sits right under the availability/access notes */
+    .hero-suggest {
+      margin-bottom: 28px;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.85);
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .hero-suggest a {
+      color: #FF5A1F;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(255, 90, 31, 0.55);
+    }
+
+    .hero-suggest a:hover {
+      text-decoration-color: #FF5A1F;
     }
 
     .hero-stats {
@@ -917,6 +992,30 @@
       margin-bottom: 14px;
     }
 
+    /* suggest-a-spot banner under the features grid */
+    .suggest-banner {
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: #FDFBF7;
+      border: 1px dashed rgba(197, 160, 89, 0.55);
+      border-radius: 4px;
+      padding: 22px 28px;
+    }
+
+    .suggest-banner p {
+      font-size: 0.92rem;
+      color: rgba(28, 37, 65, 0.75);
+      max-width: 46ch;
+    }
+
+    .suggest-banner strong {
+      color: #0B132B;
+    }
+
     .break {
       min-height: 48vh;
       display: flex;
@@ -1139,6 +1238,11 @@
         grid-template-columns: 1fr;
       }
 
+      .suggest-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
       .screen-row {
         gap: 20px;
       }
@@ -1244,6 +1348,188 @@
       height: auto;
       display: block;
     }
+
+    /* ---------- CONTACT CARD (boarding pass) ---------- */
+    .boarding-pass {
+      position: relative;
+      background: #fff;
+      border-radius: 6px;
+      padding: 38px 34px 30px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(197, 160, 89, 0.32);
+      overflow: hidden;
+    }
+
+    .boarding-pass::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--orange), var(--gold));
+    }
+
+    .bp-head h3 {
+      font-size: 1.55rem;
+      margin-top: 10px;
+      line-height: 1.15;
+    }
+
+    .route-strip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin: 26px 0 6px;
+    }
+
+    .route-strip .stop {
+      font-family: var(--serif);
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--navy);
+      white-space: nowrap;
+    }
+
+    .route-strip .route-line {
+      flex: 1;
+      position: relative;
+      height: 1px;
+      background: repeating-linear-gradient(to right, var(--gold) 0 6px, transparent 6px 13px);
+    }
+
+    .route-strip .route-line .ferry-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange-deep);
+    }
+
+    .route-strip .route-line .ferry-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .ticket-perf {
+      height: 0;
+      border-top: 1.5px dashed rgba(11, 19, 43, 0.16);
+      position: relative;
+      margin: 24px 0 6px;
+    }
+
+    .ticket-perf::before,
+    .ticket-perf::after {
+      content: '';
+      position: absolute;
+      top: -11px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--navy);
+    }
+
+    .ticket-perf::before {
+      left: -33px;
+    }
+
+    .ticket-perf::after {
+      right: -33px;
+    }
+
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 16px;
+      padding: 13px 0;
+      border-bottom: 1px dashed rgba(11, 19, 43, 0.1);
+    }
+
+    .ticket-row:last-child {
+      border-bottom: none;
+    }
+
+    .ticket-row .t-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+      color: rgba(28, 37, 65, 0.5);
+      flex-shrink: 0;
+    }
+
+    .ticket-row .t-value {
+      font-family: var(--serif);
+      font-size: 1.05rem;
+      color: var(--navy);
+      text-align: right;
+    }
+
+    .ticket-row a.t-value:hover {
+      color: var(--orange-deep);
+    }
+
+    .gov-notice {
+      display: flex;
+      gap: 16px;
+      background: #fff;
+      border-radius: 6px;
+      padding: 26px;
+      margin-top: 24px;
+      border: 1px solid var(--line);
+      border-left: 3px solid var(--gold);
+    }
+
+    .gov-notice .gov-icon {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--sand);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--orange-deep);
+    }
+
+    .gov-notice .gov-icon svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .gov-notice h4 {
+      font-size: 1.05rem;
+      margin: 3px 0 8px;
+    }
+
+    .gov-notice p {
+      font-size: 0.87rem;
+      color: rgba(28, 37, 65, 0.68);
+      margin: 0;
+    }
+
+    @media (max-width: 760px) {
+      .boarding-pass {
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+
+      .ticket-perf::before {
+        left: -25px;
+      }
+
+      .ticket-perf::after {
+        right: -25px;
+      }
+    }
   </style>
 </head>
 
@@ -1257,9 +1543,9 @@
         <li><a href="#about">About</a></li>
         <li><a href="#press">Press</a></li>
         <li><a href="#contact">Contact</a></li>
-        <li class="nav-mobile-cta"><a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a></li>
+        <li class="nav-mobile-cta"><a href="#contact" class="btn btn-primary">Get Early Access</a></li>
       </ul>
-      <div class="nav-cta"><a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a></div>
+      <div class="nav-cta"><a href="#contact" class="btn btn-primary">Get Early Access</a></div>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false"
         aria-controls="navLinks">
         <span></span><span></span><span></span>
@@ -1284,14 +1570,39 @@
         <p class="lede">Plan your route, track terminals, and build your travel journal — all in one app.</p>
 
         <div class="hero-actions">
-          <a href="contact.html#send-message" class="btn btn-primary">Get Early Access</a>
+          <a href="#contact" class="btn btn-primary">Get Early Access</a>
           <a href="#gallery" class="btn btn-outline">Explore Romblon</a>
         </div>
+
+        <div class="hero-availability">
+          <span class="platform-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path
+                d="M6.5 8.5v8a1 1 0 0 0 1 1h.75v3a1.25 1.25 0 0 0 2.5 0v-3h1.5v3a1.25 1.25 0 0 0 2.5 0v-3h.75a1 1 0 0 0 1-1v-8h-10z" />
+              <path d="M4.5 9v6.5a1.25 1.25 0 0 0 2.5 0V9h-2.5z" />
+              <path d="M17 9v6.5a1.25 1.25 0 0 0 2.5 0V9H17z" />
+              <path
+                d="M15.9 4.6l1.05-1.4a.4.4 0 0 0-.64-.48l-1.1 1.46a5.6 5.6 0 0 0-4.42 0L9.69 2.72a.4.4 0 1 0-.64.48L10.1 4.6A5.2 5.2 0 0 0 6.5 8h11a5.2 5.2 0 0 0-3.6-3.4zM9.6 6.4a.6.6 0 1 1 0-1.2.6.6 0 0 1 0 1.2zm4.8 0a.6.6 0 1 1 0-1.2.6.6 0 0 1 0 1.2z" />
+            </svg>
+            Android Only
+          </span>
+          <span>Currently in beta testing — not yet on Google Play</span>
+        </div>
+
+        <div class="hero-access-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 6h16v12H4z" />
+            <path d="M4 7l8 6 8-6" />
+          </svg>
+          <span>"Get Early Access" opens the contact form — you'll receive your beta link by email, not an instant download.</span>
+        </div>
+
+        <p class="hero-suggest">Know a place we're missing? <a href="#contact">Suggest a spot →</a></p>
 
         <div class="hero-stats">
           <div><strong>17</strong><span>Municipalities mapped</span></div>
           <div><strong>7</strong><span>Major islands</span></div>
-          <div><strong>30+</strong><span>Places &amp; dive spots</span></div>
+          <div><strong>30+</strong><span>Places</span></div>
         </div>
 
         <div class="hero-slide-label" id="heroSlideLabel">
@@ -1444,6 +1755,11 @@
             <p>Every place you mark drops a pin on your personal map.</p>
           </div>
         </div>
+        <div class="suggest-banner">
+          <p><strong>Been somewhere in Romblon that isn't on the map yet?</strong> Beaches, eateries, marble
+            workshops, fiesta dates — if you know a spot, we'd love to add it.</p>
+          <a href="#contact" class="btn btn-outline">Suggest a Spot →</a>
+        </div>
       </div>
     </section>
 
@@ -1567,19 +1883,63 @@
       </div>
     </section>
 
-    <!-- contact cta -->
+    <!-- contact -->
     <section class="cta-download section-pad" id="contact">
-      <div class="wrap cta-inner">
-        <div class="cta-text"><span class="eyebrow">Contact</span>
+      <div class="wrap grid-2col grid-2col-feature">
+        <div class="cta-text">
+          <span class="eyebrow">Contact</span>
           <h2>Let's talk.</h2>
-          <p>Whether you want early access, represent a local organization, or covering Romblon tourism — this reaches
-            Bryan directly.</p><a href="contact.html" class="btn btn-primary" style="margin-top:24px;">Send a Message
-            →</a>
-          <p style="margin-top:12px;font-size:0.75rem;color:rgba(253,251,247,0.5);">Usually a reply within a few days.
-          </p>
+          <p>Whether you want early access, have a spot to suggest, represent a local organization, or you're
+            covering Romblon tourism — this reaches Bryan directly. Send an email and you'll get a real, personal
+            reply — not an auto-response — usually within a few days.</p>
         </div>
-        <div class="cta-visual">
-          <img src="css/help.png" alt="app preview" />
+        <div>
+          <div class="boarding-pass">
+            <div class="bp-head">
+              <span class="eyebrow">Direct Line</span>
+              <h3>One inbox, no middle office.</h3>
+            </div>
+
+
+            <div class="ticket-row">
+              <span class="t-label">Email</span>
+              <a class="t-value" href="mailto:adventureromblon@yahoo.com">adventureromblon@yahoo.com</a>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Location</span>
+              <span class="t-value">Tablas, Romblon</span>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Typical reply</span>
+              <span class="t-value">A few days</span>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Early access</span>
+              <span class="t-value">Sent by email reply</span>
+            </div>
+            <div class="ticket-row">
+              <span class="t-label">Suggest a spot</span>
+              <span class="t-value">Just email us</span>
+            </div>
+          </div>
+
+          <div class="gov-notice">
+            <div class="gov-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 3l7 3v6c0 4.5-3 8.2-7 9-4-0.8-7-4.5-7-9V6l7-3z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <div>
+              <h4>About the beta install</h4>
+              <p>Adventure is currently Android-only and still in beta, so it isn't listed on Google Play yet.
+                Because of that, Play Protect may flag the installer with a warning — this is normal for early beta
+                APKs distributed outside the Play Store, not a sign the app is unsafe. As with any beta, you may run
+                into occasional bugs; Adventure doesn't collect data it doesn't need, and your privacy is protected
+                by design. If you ever run into an install issue, just reach out through the email above.</p>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
